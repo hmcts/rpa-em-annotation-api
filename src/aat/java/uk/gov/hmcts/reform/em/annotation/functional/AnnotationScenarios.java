@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.em.annotation.functional;
 
-import io.restassured.RestAssured;
 import org.hamcrest.Matchers;
 import org.json.JSONArray;
 import org.json.JSONObject;

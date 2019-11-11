@@ -1,6 +1,6 @@
 name: em-anno
 home: https://github.com/hmcts/rpa-em-annotation-api
-version: 0.0.3
+version: 0.1.13
 description: Helm chart for the HMCTS EM Annotation API
 maintainers:
   - name: HMCTS EM Team

@@ -82,7 +82,7 @@ info:
 # AuthCheckerConfiguration
 authorization:
   case-worker-roles: ${CASE_WORKER_ROLES:caseworker-probate,caseworker-cmc,caseworker-sscs,caseworker-divorce}
-  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_gw,jui_webapp,pui_webapp,em_npa_app}
+  s2s-names-whitelist: ${S2S_NAMES_WHITELIST:sscs,divorce,ccd,em_npa_app,em_api,em_gw,ccd_gw,ccd_data,divorce_document_upload,divorce_document_generator,probate_backend,jui_webapp,pui_webapp,xui_webapp}
 
 # auth-checker-lib
 auth:

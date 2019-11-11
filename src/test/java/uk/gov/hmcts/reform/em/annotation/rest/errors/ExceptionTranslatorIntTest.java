@@ -104,8 +104,7 @@ public class ExceptionTranslatorIntTest {
         mockMvc.perform(get("/test/access-denied"))
             .andExpect(status().isForbidden())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.403"))
-            .andExpect(jsonPath("$.detail").value("test access denied!"));
+            .andExpect(jsonPath("$.message").value("error.http.403"));
     }
 
     @Test
@@ -114,8 +113,7 @@ public class ExceptionTranslatorIntTest {
             .andExpect(status().isUnauthorized())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
             .andExpect(jsonPath("$.message").value("error.http.401"))
-            .andExpect(jsonPath("$.path").value("/test/unauthorized"))
-            .andExpect(jsonPath("$.detail").value("test authentication failed!"));
+            .andExpect(jsonPath("$.path").value("/test/unauthorized"));
     }
 
     @Test
@@ -123,8 +121,7 @@ public class ExceptionTranslatorIntTest {
         mockMvc.perform(post("/test/access-denied"))
             .andExpect(status().isMethodNotAllowed())
             .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.405"))
-            .andExpect(jsonPath("$.detail").value("Request method 'POST' not supported"));
+            .andExpect(jsonPath("$.message").value("error.http.405"));
     }
 
     @Test

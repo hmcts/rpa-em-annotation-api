@@ -1,9 +1,14 @@
+provider "azurerm" {
+  version = "1.22.1"
+}
+
 locals {
   app_full_name = "${var.product}-${var.component}"
   ase_name = "core-compute-${var.env}"
   local_env = "${(var.env == "preview" || var.env == "spreview") ? (var.env == "preview" ) ? "aat" : "saat" : var.env}"
   shared_vault_name = "${var.shared_product_name}-${local.local_env}"
   tags = "${merge(var.common_tags, map("Team Contact", "#rpe"))}"
+  vaultName = "${local.app_full_name}-${var.env}"
 }
 # "${local.ase_name}"
 # "${local.app_full_name}"
@@ -24,8 +29,8 @@ module "app" {
   common_tags  = "${var.common_tags}"
   asp_rg = "${var.shared_product_name}-${var.env}"
   asp_name = "${var.shared_product_name}-anno-${var.env}"
-  appinsights_instrumentation_key = "${var.appinsights_instrumentation_key}"
-
+  appinsights_instrumentation_key = "${data.azurerm_key_vault_secret.app_insights_key.value}"
+  enable_ase                      = false
 
   app_settings = {
     POSTGRES_HOST = "${module.db.host_name}"
@@ -70,9 +75,6 @@ module "app" {
     ENDPOINTS_HEALTH_SENSITIVE = "${var.endpoints_health_sensitive}"
     ENDPOINTS_INFO_SENSITIVE = "${var.endpoints_info_sensitive}"
 
-    S2S_NAMES_WHITELIST = "${var.s2s_names_whitelist}"
-    CASE_WORKER_ROLES = "${var.case_worker_roles}"
-
     # Toggles
     ENABLE_IDAM_HEALTH_CHECK = "${var.enable_idam_healthcheck}"
     ENABLE_S2S_HEALTH_CHECK = "${var.enable_s2s_healthcheck}"
@@ -93,18 +95,9 @@ module "db" {
   subscription = "${var.subscription}"
 }
 
-data "azurerm_key_vault_secret" "s2s_key" {
-  name      = "microservicekey-em-annotation-app"
-  vault_uri = "https://s2s-${local.local_env}.vault.azure.net/"
-}
-
-data "azurerm_key_vault" "shared_key_vault" {
-  name = "${local.shared_vault_name}"
-  resource_group_name = "${local.shared_vault_name}"
-}
-
-module "local_key_vault" {
-  source = "git@github.com:hmcts/moj-module-key-vault?ref=master"
+# Copy s2s key from shared to local vault
+module "key_vault" {
+  source = "git@github.com:hmcts/cnp-module-key-vault?ref=master"
   product = "${local.app_full_name}"
   env = "${var.env}"
   tenant_id = "${var.tenant_id}"
@@ -112,41 +105,84 @@ module "local_key_vault" {
   resource_group_name = "${module.app.resource_group_name}"
   product_group_object_id = "5d9cd025-a293-4b97-a0e5-6f43efce02c0"
   common_tags = "${var.common_tags}"
+  managed_identity_object_id = "${var.managed_identity_object_id}"
+}
+
+data "azurerm_key_vault" "s2s_vault" {
+  name = "s2s-${local.local_env}"
+  resource_group_name = "rpe-service-auth-provider-${local.local_env}"
+}
+
+data "azurerm_key_vault_secret" "s2s_key" {
+  name      = "microservicekey-em-annotation-app"
+  key_vault_id = "${data.azurerm_key_vault.s2s_vault.id}"
+}
+
+data "azurerm_key_vault" "key_vault" {
+  name = "${module.key_vault.key_vault_name}"
+  resource_group_name = "${module.key_vault.key_vault_name}"
+}
+
+resource "azurerm_key_vault_secret" "local_s2s_key" {
+  name         = "microservicekey-em-annotation-app"
+  value        = "${data.azurerm_key_vault_secret.s2s_key.value}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+}
+
+data "azurerm_key_vault" "shared_key_vault" {
+  name = "${local.shared_vault_name}"
+  resource_group_name = "${local.shared_vault_name}"
+}
+
+data "azurerm_key_vault" "product" {
+  name = "${var.shared_product_name}-${var.env}"
+  resource_group_name = "${var.shared_product_name}-${var.env}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
-  name = "${local.app_full_name}-POSTGRES-USER"
+  name = "${var.component}-POSTGRES-USER"
   value = "${module.db.user_name}"
-  vault_uri = "${module.local_key_vault.key_vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
-  name = "${local.app_full_name}-POSTGRES-PASS"
+  name = "${var.component}-POSTGRES-PASS"
   value = "${module.db.postgresql_password}"
-  vault_uri = "${module.local_key_vault.key_vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
-  name = "${local.app_full_name}-POSTGRES-HOST"
+  name = "${var.component}-POSTGRES-HOST"
   value = "${module.db.host_name}"
-  vault_uri = "${module.local_key_vault.key_vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
-  name = "${local.app_full_name}-POSTGRES-PORT"
+  name = "${var.component}-POSTGRES-PORT"
   value = "${module.db.postgresql_listen_port}"
-  vault_uri = "${module.local_key_vault.key_vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
-  name = "${local.app_full_name}-POSTGRES-DATABASE"
+  name = "${var.component}-POSTGRES-DATABASE"
   value = "${module.db.postgresql_database}"
-  vault_uri = "${module.local_key_vault.key_vault_uri}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+}
+
+# Load AppInsights key from rpa vault
+data "azurerm_key_vault_secret" "app_insights_key" {
+  name      = "AppInsightsInstrumentationKey"
+  key_vault_id = "${data.azurerm_key_vault.product.id}"
+}
+
+resource "azurerm_key_vault_secret" "local_app_insights_key" {
+  name         = "AppInsightsInstrumentationKey"
+  value        = "${data.azurerm_key_vault_secret.app_insights_key.value}"
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
 
 resource "azurerm_resource_group" "rg" {
   name     = "${var.product}-${var.env}"
   location = "${var.location}"
-
   tags = "${local.tags}"
 }
