@@ -1,4 +1,4 @@
-anno:
+java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
@@ -12,5 +12,5 @@ anno:
     SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"
     SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     ENABLE_LIQUIBASE: true
-postgresql:
-  enabled: true
+  postgresql:
+    enabled: true

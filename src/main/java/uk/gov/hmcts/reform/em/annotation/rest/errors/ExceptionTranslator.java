@@ -54,7 +54,6 @@ public class ExceptionTranslator implements ProblemHandling {
         } else {
             builder
                 .withCause(((DefaultProblem) problem).getCause())
-                .withDetail(problem.getDetail())
                 .withInstance(problem.getInstance());
             problem.getParameters().forEach(builder::with);
             if (!problem.getParameters().containsKey("message") && problem.getStatus() != null) {

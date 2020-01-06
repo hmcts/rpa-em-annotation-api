@@ -6,5 +6,5 @@ spring:
       paths: /mnt/secrets/em-anno
       aliases:
         microservicekey-em-annotation-app: S2S_KEY
-        AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY
+        AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key
         anno-POSTGRES-PASS: spring.datasource.password

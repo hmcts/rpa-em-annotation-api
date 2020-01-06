@@ -2,36 +2,35 @@ package uk.gov.hmcts.reform.em.annotation.testutil;
 
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
+import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 
+import javax.annotation.PostConstruct;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@Service
 public class TestUtil {
 
-    private final String idamAuth;
-    private final String s2sAuth;
+    @Autowired
+    private IdamHelper idamHelper;
 
-    public TestUtil() {
-        IdamHelper idamHelper = new IdamHelper(
-            Env.getIdamUrl(),
-            Env.getOAuthClient(),
-            Env.getOAuthSecret(),
-            Env.getOAuthRedirect()
-        );
+    @Autowired
+    private S2sHelper s2sHelper;
 
-        S2sHelper s2sHelper = new S2sHelper(
-            Env.getS2sUrl(),
-            Env.getS2sSecret(),
-            Env.getS2sMicroservice()
-        );
-
+    @PostConstruct
+    void postConstruct() {
         RestAssured.useRelaxedHTTPSValidation();
-
-        idamAuth = idamHelper.getIdamToken();
-        s2sAuth = s2sHelper.getS2sToken();
+        idamHelper.createUser("a@b.com", Stream.of("caseworker").collect(Collectors.toList()));
     }
 
     public RequestSpecification authRequest() {
         return RestAssured
             .given()
-            .header("Authorization", idamAuth)
-            .header("ServiceAuthorization", s2sAuth);
+            .header("Authorization", idamHelper.authenticateUser("a@b.com"))
+            .header("ServiceAuthorization", s2sHelper.getS2sToken());
     }
+
 }

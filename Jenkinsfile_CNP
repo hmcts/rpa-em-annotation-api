@@ -51,11 +51,13 @@ withPipeline(type , product, component) {
     enableDockerBuild()
     overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
-   // disableLegacyDeploymentOnAAT()
+    disableLegacyDeployment()
     installCharts()
     enableAksStagingDeployment()
-
-    after('smoketest:aat') {
-        sh "rm -rf infrastructure/"
+    after('test') {
+        sh '''
+        curl https://raw.githubusercontent.com/hmcts/reform-api-docs/master/bin/publish-swagger-docs.sh > publish-swagger-docs.sh
+        sh ./publish-swagger-docs.sh
+         '''
     }
 }
