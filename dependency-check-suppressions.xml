@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <suppress>
+    <cve>CVE-2020-5398</cve>
+    <cve>CVE-2019-12418</cve>
+    <cve>CVE-2019-17563</cve>
+    </suppress>
+    <suppress>
         <notes><![CDATA[
    file name: spring-batch-core-4.0.1.RELEASE.jar
    ]]></notes>
