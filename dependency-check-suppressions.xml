@@ -6,6 +6,7 @@
     <cve>CVE-2019-17563</cve>
     <cve>CVE-2019-20444</cve>
     <cve>CVE-2019-20445</cve>
+    <cve>CVE-2019-20446</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
