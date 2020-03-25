@@ -27,6 +27,8 @@ public class AnnotationDTO extends AbstractAuditingDTO implements Serializable {
 
     private Set<CommentDTO> comments = new HashSet<>();
 
+    private Set<TagDTO> tags = new HashSet<>();
+
     private Set<RectangleDTO> rectangles = new HashSet<>();
 
     public UUID getId() {
@@ -67,6 +69,14 @@ public class AnnotationDTO extends AbstractAuditingDTO implements Serializable {
 
     public void setComments(Set<CommentDTO> comments) {
         this.comments = comments;
+    }
+
+    public Set<TagDTO> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<TagDTO> tags) {
+        this.tags = tags;
     }
 
     public Set<RectangleDTO> getRectangles() {

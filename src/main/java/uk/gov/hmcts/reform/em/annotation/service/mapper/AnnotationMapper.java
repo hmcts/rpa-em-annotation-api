@@ -13,13 +13,15 @@ import java.util.UUID;
 /**
  * Mapper for the entity Annotation and its DTO AnnotationDTO.
  */
-@Mapper(componentModel = "spring", uses = {AnnotationSetMapper.class, RectangleMapper.class, CommentMapper.class})
+@Mapper(componentModel = "spring",
+        uses = {AnnotationSetMapper.class, RectangleMapper.class, CommentMapper.class, TagMapper.class})
 public interface AnnotationMapper extends EntityMapper<AnnotationDTO, Annotation> {
 
     @Mapping(source = "annotationSet.id", target = "annotationSetId")
     AnnotationDTO toDto(Annotation annotation);
 
     @Mapping(target = "comments")
+    @Mapping(target = "tags")
     @Mapping(target = "rectangles")
     @Mapping(source = "annotationSetId", target = "annotationSet")
     @Mapping(target = "createdByDetails", ignore = true)

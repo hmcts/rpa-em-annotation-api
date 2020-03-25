@@ -4,30 +4,45 @@ import org.hamcrest.Matchers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
-import uk.gov.hmcts.reform.em.annotation.testutil.Env;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
 
-import static org.hamcrest.CoreMatchers.*;
 import java.util.UUID;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+
+@SpringBootTest(classes = {TestUtil.class, EmTestConfig.class})
+@PropertySource(value = "classpath:application.yml")
+@RunWith(SpringRunner.class)
 public class AnnotationScenarios {
 
-    TestUtil testUtil = new TestUtil();
+    @Autowired
+    TestUtil testUtil;
+
+    @Value("${test.url}")
+    String testUrl;
 
     @Test
-    public void testGetAnnotationSets() throws Exception {
+    public void testGetAnnotationSets() {
         testUtil
             .authRequest()
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-            .request("GET", Env.getTestUrl() + "/api/annotation-sets")
+            .request("GET", testUrl + "/api/annotation-sets")
             .then()
             .statusCode(200);
 
     }
 
     @Test
-    public void testCreateAnnotationSetAndAnnotationsThenUpdateThenDelete() throws Exception {
+    public void testCreateAnnotationSetAndAnnotationsThenUpdateThenDelete() {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -40,7 +55,7 @@ public class AnnotationScenarios {
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .body(jsonObject.toString())
-            .request("POST", Env.getTestUrl() + "/api/annotation-sets")
+            .request("POST", testUrl + "/api/annotation-sets")
             .then()
             .statusCode(201);
 
@@ -76,7 +91,7 @@ public class AnnotationScenarios {
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .body(createAnnotations)
-                .request("POST", Env.getTestUrl() + "/api/annotations")
+                .request("POST", testUrl + "/api/annotations")
                 .then()
                 .statusCode(201)
                 .body("id", equalTo(annotationId.toString()))
@@ -96,7 +111,7 @@ public class AnnotationScenarios {
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .body(createAnnotations)
-                .request("PUT", Env.getTestUrl() + "/api/annotations")
+                .request("PUT", testUrl + "/api/annotations")
                 .then()
                 .statusCode(200)
                 .body("id", equalTo(annotationId.toString()))
@@ -111,14 +126,14 @@ public class AnnotationScenarios {
         testUtil
             .authRequest()
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .request("DELETE", Env.getTestUrl() + "/api/annotations/" + annotationId.toString() )
+                .request("DELETE", testUrl + "/api/annotations/" + annotationId.toString() )
                 .then()
                 .statusCode(200);
 
         testUtil
             .authRequest()
             .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", Env.getTestUrl() + "/api/annotations/" + annotationId.toString() )
+                .request("GET", testUrl + "/api/annotations/" + annotationId.toString() )
                 .then()
                 .statusCode(404);
 

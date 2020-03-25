@@ -13,7 +13,6 @@ import java.util.UUID;
 @Mapper(componentModel = "spring", uses = {AnnotationMapper.class})
 public interface AnnotationSetMapper extends EntityMapper<AnnotationSetDTO, AnnotationSet> {
 
-
     @Mapping(target = "annotations", ignore = true)
     @Mapping(target = "createdByDetails", ignore = true)
     @Mapping(target = "lastModifiedByDetails", ignore = true)

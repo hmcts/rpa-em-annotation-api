@@ -2,7 +2,9 @@ package uk.gov.hmcts.reform.em.annotation.service.dto;
 
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -40,7 +42,6 @@ public class CommentDTO extends AbstractAuditingDTO implements Serializable {
     public void setAnnotationId(UUID annotationId) {
         this.annotationId = annotationId;
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

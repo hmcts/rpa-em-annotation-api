@@ -12,11 +12,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.Application;
+import uk.gov.hmcts.reform.em.annotation.BaseTest;
 import uk.gov.hmcts.reform.em.annotation.config.Constants;
 import uk.gov.hmcts.reform.em.annotation.config.audit.AuditEventConverter;
 import uk.gov.hmcts.reform.em.annotation.domain.PersistentAuditEvent;
-import uk.gov.hmcts.reform.em.annotation.repository.CustomAuditEventRepository;
-import uk.gov.hmcts.reform.em.annotation.repository.PersistenceAuditEventRepository;
 
 import javax.servlet.http.HttpSession;
 import java.time.Instant;
@@ -33,9 +32,9 @@ import static uk.gov.hmcts.reform.em.annotation.repository.CustomAuditEventRepos
  * @see CustomAuditEventRepository
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = {Application.class})
 @Transactional
-public class CustomAuditEventRepositoryIntTest {
+public class CustomAuditEventRepositoryIntTest extends BaseTest {
 
     @Autowired
     private PersistenceAuditEventRepository persistenceAuditEventRepository;
