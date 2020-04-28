@@ -48,7 +48,6 @@ def vaultOverrides = [
 
 withPipeline(type , product, component) {
     enableDbMigration('em-anno')
-    enableDockerBuild()
     overrideVaultEnvironments(vaultOverrides)
     loadVaultSecrets(secrets)
     disableLegacyDeployment()
