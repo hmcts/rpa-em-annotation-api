@@ -42,6 +42,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDTO save(CommentDTO commentDTO) {
         log.debug("Request to save Comment : {}", commentDTO);
+
         Comment comment = commentMapper.toEntity(commentDTO);
         comment = commentRepository.save(comment);
         return commentMapper.toDto(comment);
@@ -60,7 +61,6 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findAll(pageable)
             .map(commentMapper::toDto);
     }
-
 
     /**
      * Get one comment by id.
