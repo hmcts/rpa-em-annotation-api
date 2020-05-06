@@ -29,9 +29,13 @@ public class AnnotationSetServiceImpl implements AnnotationSetService {
 
     private final AnnotationSetMapper annotationSetMapper;
 
-    public AnnotationSetServiceImpl(AnnotationSetRepository annotationSetRepository, AnnotationSetMapper annotationSetMapper) {
+    private final SecurityUtils securityUtils;
+
+    public AnnotationSetServiceImpl(AnnotationSetRepository annotationSetRepository, AnnotationSetMapper annotationSetMapper,
+                                    final SecurityUtils securityUtils) {
         this.annotationSetRepository = annotationSetRepository;
         this.annotationSetMapper = annotationSetMapper;
+        this.securityUtils = securityUtils;
     }
 
     /**
@@ -90,7 +94,7 @@ public class AnnotationSetServiceImpl implements AnnotationSetService {
 
     @Override
     public Optional<AnnotationSetDTO> findOneByDocumentId(String documentId) {
-        return SecurityUtils.getCurrentUserLogin().flatMap( login ->
+        return securityUtils.getCurrentUserLogin().flatMap( login ->
             annotationSetRepository.findByDocumentIdAndCreatedBy(documentId, login).map(annotationSetMapper::toDto)
         );
     }

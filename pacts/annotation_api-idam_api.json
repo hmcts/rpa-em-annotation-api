@@ -7,13 +7,21 @@
     },
     "interactions": [
         {
-            "description": "Provider receives a POST request from an Annotation API",
+            "description": "Provider receives a POST /o/token request from Annotation API",
             "request": {
                 "method": "POST",
-                "path": "/oauth2/authorize",
+                "path": "/o/token",
                 "headers": {
-                    "Authorization": "111",
                     "Content-Type": "application/x-www-form-urlencoded"
+                },
+                "body": {
+                    "grant_type": "password",
+                    "client_id": "ia",
+                    "client_secret": "some_client_secret",
+                    "redirect_uri": "/oauth2redirect",
+                    "scope": "openid roles profile",
+                    "username": "annotationusername",
+                    "password": "annotationpwd"
                 }
             },
             "response": {
@@ -22,61 +30,40 @@
                     "Content-Type": "application/json; charset=UTF-8"
                 },
                 "body": {
-                    "code": "12345"
+                    "access_token": "some-long-value",
+                    "refresh_token": "another-long-value",
+                    "scope": "openid roles profile",
+                    "id_token": "some-value",
+                    "token_type": "Bearer",
+                    "expires_in": "12345"
                 },
                 "matchingRules": {
                     "body": {
-                        "$.code": {
+                        "$.access_token": {
                             "matchers": [
                                 {
                                     "match": "type"
                                 }
                             ],
                             "combine": "AND"
-                        }
-                    },
-                    "header": {
-                        "Content-Type": {
+                        },
+                        "$.refresh_token": {
                             "matchers": [
                                 {
-                                    "match": "regex",
-                                    "regex": "application/json;\\s?charset=(utf|UTF)-8"
+                                    "match": "type"
                                 }
                             ],
                             "combine": "AND"
-                        }
-                    }
-                }
-            },
-            "providerStates": [
-                {
-                    "name": "Idam returns the auth code "
-                }
-            ]
-        },
-        {
-            "description": "Provider receives a GET /code request from an Annotation API",
-            "request": {
-                "method": "POST",
-                "path": "/oauth2/token",
-                "headers": {
-                    "Authorization": "111",
-                    "Content-Type": "application/x-www-form-urlencoded"
-                }
-            },
-            "response": {
-                "status": 200,
-                "headers": {
-                    "Content-Type": "application/json; charset=UTF-8"
-                },
-                "body": {
-                    "access_token": "some-long-access-token",
-                    "token_type": "Bearer",
-                    "expires_in": "28800"
-                },
-                "matchingRules": {
-                    "body": {
-                        "$.access_token": {
+                        },
+                        "$.scope": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        },
+                        "$.id_token": {
                             "matchers": [
                                 {
                                     "match": "type"
@@ -116,7 +103,7 @@
             },
             "providerStates": [
                 {
-                    "name": "Idam successfully returns user details"
+                    "name": "Idam successfully returns access token"
                 }
             ]
         },
@@ -142,6 +129,48 @@
                     "email": "ia-caseofficer@fake.hmcts.net"
                 },
                 "matchingRules": {
+                    "body": {
+                        "$.id": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        },
+                        "$.email": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        },
+                        "$.forename": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        },
+                        "$.surname": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        },
+                        "$.roles": {
+                            "matchers": [
+                                {
+                                    "match": "type"
+                                }
+                            ],
+                            "combine": "AND"
+                        }
+                    },
                     "header": {
                         "Content-Type": {
                             "matchers": [

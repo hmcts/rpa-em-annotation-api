@@ -10,17 +10,16 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.Application;
+import uk.gov.hmcts.reform.em.annotation.BaseTest;
 import uk.gov.hmcts.reform.em.annotation.domain.IdamDetails;
 import uk.gov.hmcts.reform.em.annotation.domain.Rectangle;
 import uk.gov.hmcts.reform.em.annotation.repository.RectangleRepository;
+import uk.gov.hmcts.reform.em.annotation.rest.errors.ExceptionTranslator;
 import uk.gov.hmcts.reform.em.annotation.service.RectangleService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.RectangleDTO;
 import uk.gov.hmcts.reform.em.annotation.service.mapper.RectangleMapper;
-import uk.gov.hmcts.reform.em.annotation.rest.errors.ExceptionTranslator;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -30,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static uk.gov.hmcts.reform.em.annotation.rest.TestUtil.createFormattingConversionService;
 
 /**
  * Test class for the RectangleResource REST controller.
@@ -38,8 +36,8 @@ import static uk.gov.hmcts.reform.em.annotation.rest.TestUtil.createFormattingCo
  * @see RectangleResource
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
-public class RectangleResourceIntTest {
+@SpringBootTest(classes = {Application.class})
+public class RectangleResourceIntTest extends BaseTest {
 
     private static final Double DEFAULT_X = 1d;
     private static final Double UPDATED_X = 2d;
@@ -74,19 +72,12 @@ public class RectangleResourceIntTest {
     @Autowired
     private EntityManager em;
 
-    private MockMvc restRectangleMockMvc;
-
     private Rectangle rectangle;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final RectangleResource rectangleResource = new RectangleResource(rectangleService);
-        this.restRectangleMockMvc = MockMvcBuilders.standaloneSetup(rectangleResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
         em.persist(new IdamDetails("system"));
         em.persist(new IdamDetails("anonymous"));
     }
@@ -120,7 +111,7 @@ public class RectangleResourceIntTest {
         // Create the Rectangle
         RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
         rectangleDTO.setId(null);
-        restRectangleMockMvc.perform(post("/api/rectangles")
+        restLogoutMockMvc.perform(post("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
             .andExpect(status().isBadRequest());
@@ -140,7 +131,7 @@ public class RectangleResourceIntTest {
         RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restRectangleMockMvc.perform(post("/api/rectangles")
+        restLogoutMockMvc.perform(post("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
             .andExpect(status().isCreated());
@@ -157,7 +148,7 @@ public class RectangleResourceIntTest {
         rectangleRepository.saveAndFlush(rectangle);
 
         // Get all the rectangleList
-        restRectangleMockMvc.perform(get("/api/rectangles?sort=id,desc"))
+        restLogoutMockMvc.perform(get("/api/rectangles?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rectangle.getId().toString())))
@@ -174,7 +165,7 @@ public class RectangleResourceIntTest {
         rectangleRepository.saveAndFlush(rectangle);
 
         // Get the rectangle
-        restRectangleMockMvc.perform(get("/api/rectangles/{id}", rectangle.getId()))
+        restLogoutMockMvc.perform(get("/api/rectangles/{id}", rectangle.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(rectangle.getId().toString()))
@@ -188,7 +179,7 @@ public class RectangleResourceIntTest {
     @Transactional
     public void getNonExistingRectangle() throws Exception {
         // Get the rectangle
-        restRectangleMockMvc.perform(get("/api/rectangles/{id}", UUID.randomUUID()))
+        restLogoutMockMvc.perform(get("/api/rectangles/{id}", UUID.randomUUID()))
             .andExpect(status().isNotFound());
     }
 
@@ -211,7 +202,7 @@ public class RectangleResourceIntTest {
             .height(UPDATED_HEIGHT);
         RectangleDTO rectangleDTO = rectangleMapper.toDto(updatedRectangle);
 
-        restRectangleMockMvc.perform(put("/api/rectangles")
+        restLogoutMockMvc.perform(put("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
             .andExpect(status().isOk());
@@ -235,7 +226,7 @@ public class RectangleResourceIntTest {
         RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restRectangleMockMvc.perform(put("/api/rectangles")
+        restLogoutMockMvc.perform(put("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
             .andExpect(status().isOk());
@@ -254,7 +245,7 @@ public class RectangleResourceIntTest {
         int databaseSizeBeforeDelete = rectangleRepository.findAll().size();
 
         // Get the rectangle
-        restRectangleMockMvc.perform(delete("/api/rectangles/{id}", rectangle.getId())
+        restLogoutMockMvc.perform(delete("/api/rectangles/{id}", rectangle.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 

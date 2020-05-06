@@ -28,7 +28,6 @@ public interface CommentService {
      */
     Page<CommentDTO> findAll(Pageable pageable);
 
-
     /**
      * Get the "id" comment.
      *

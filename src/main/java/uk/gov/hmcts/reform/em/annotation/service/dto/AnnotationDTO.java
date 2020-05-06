@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.em.annotation.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.em.annotation.domain.enumeration.AnnotationType;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -27,7 +27,20 @@ public class AnnotationDTO extends AbstractAuditingDTO implements Serializable {
 
     private Set<CommentDTO> comments = new HashSet<>();
 
+    private Set<TagDTO> tags = new HashSet<>();
+
     private Set<RectangleDTO> rectangles = new HashSet<>();
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String documentId;
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
 
     public UUID getId() {
         return id;
@@ -69,6 +82,14 @@ public class AnnotationDTO extends AbstractAuditingDTO implements Serializable {
         this.comments = comments;
     }
 
+    public Set<TagDTO> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<TagDTO> tags) {
+        this.tags = tags;
+    }
+
     public Set<RectangleDTO> getRectangles() {
         return rectangles;
     }
@@ -86,7 +107,6 @@ public class AnnotationDTO extends AbstractAuditingDTO implements Serializable {
     }
 
     @Override
-
     public boolean equals(Object o) {
         if (this == o) {
             return true;

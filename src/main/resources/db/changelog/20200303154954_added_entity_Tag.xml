@@ -1,0 +1,41 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="tomelliott (generated)" id="1583250597900-2">
+        <createTable tableName="annotation_tags">
+            <column name="annotation_id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(20)">
+                <constraints primaryKey="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="tomelliott (generated)" id="1583250597901-7">
+        <createTable tableName="tag">
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="color" type="VARCHAR(200)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="tomelliott (generated)" id="1583250597900-3">
+        <addPrimaryKey columnNames="created_by, name" constraintName="tagPK" tableName="tag"/>
+    </changeSet>
+    <changeSet author="tomelliott (generated)" id="1583250597900-5">
+        <addForeignKeyConstraint baseColumnNames="annotation_id" baseTableName="annotation_tags" constraintName="FK6pyecmrxhwm9gi9q42lo1o2tv" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="annotation" validate="true"/>
+    </changeSet>
+    <changeSet author="tomelliott (generated)" id="1583250597900-8">
+        <addForeignKeyConstraint baseColumnNames="created_by,name" baseTableName="annotation_tags" constraintName="FK9qipuwcr39qbh75i74xe682kg" deferrable="false" initiallyDeferred="false" referencedColumnNames="created_by,name" referencedTableName="tag" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

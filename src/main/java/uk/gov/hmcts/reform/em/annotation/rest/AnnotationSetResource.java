@@ -134,6 +134,7 @@ public class AnnotationSetResource {
     @ApiOperation(value = "Get an existing annotationSetDTO", notes = "A GET request to retrieve an annotationSetDTO")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success", response = AnnotationSetDTO.class),
+            @ApiResponse(code = 204, message = "No Content"),
             @ApiResponse(code = 401, message = "Unauthorised"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
@@ -143,7 +144,7 @@ public class AnnotationSetResource {
     public ResponseEntity<AnnotationSetDTO> getAnnotationSet(@PathVariable UUID id) {
         log.debug("REST request to get AnnotationSet : {}", id);
         Optional<AnnotationSetDTO> annotationSetDTO = annotationSetService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(annotationSetDTO);
+        return ResponseUtil.wrapOrNoContent(annotationSetDTO);
     }
 
     /**

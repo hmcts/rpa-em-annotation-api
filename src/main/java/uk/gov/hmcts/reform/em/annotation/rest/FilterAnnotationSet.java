@@ -47,5 +47,4 @@ public class FilterAnnotationSet {
             .map( annotationSetDTO -> ResponseEntity.ok(annotationSetDTO))
             .orElseThrow( () -> new ResourceNotFoundException("Could not find annotation set for this document id#" + documentId) );
     }
-
 }

@@ -10,10 +10,9 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.Application;
+import uk.gov.hmcts.reform.em.annotation.BaseTest;
 import uk.gov.hmcts.reform.em.annotation.domain.AnnotationSet;
 import uk.gov.hmcts.reform.em.annotation.domain.IdamDetails;
 import uk.gov.hmcts.reform.em.annotation.repository.AnnotationSetRepository;
@@ -30,15 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static uk.gov.hmcts.reform.em.annotation.rest.TestUtil.createFormattingConversionService;
 
 /**
  * Test class for the AnnotationSetResource REST controller.
  *
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
-public class AnnotationSetResourceIntTest {
+@SpringBootTest(classes = {Application.class})
+public class AnnotationSetResourceIntTest extends BaseTest {
 
     private static final String DEFAULT_DOCUMENT_ID = "AAAAAAAAAA";
     private static final String UPDATED_DOCUMENT_ID = "BBBBBBBBBB";
@@ -64,19 +62,12 @@ public class AnnotationSetResourceIntTest {
     @Autowired
     private EntityManager em;
 
-    private MockMvc restAnnotationSetMockMvc;
-
     private AnnotationSet annotationSet;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final AnnotationSetResource annotationSetResource = new AnnotationSetResource(annotationSetService);
-        this.restAnnotationSetMockMvc = MockMvcBuilders.standaloneSetup(annotationSetResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
         em.persist(new IdamDetails("system"));
         em.persist(new IdamDetails("anonymous"));
     }
@@ -108,7 +99,7 @@ public class AnnotationSetResourceIntTest {
         // Create the AnnotationSet
         AnnotationSetDTO annotationSetDTO = annotationSetMapper.toDto(annotationSet);
         annotationSetDTO.setId(null);
-        restAnnotationSetMockMvc.perform(post("/api/annotation-sets")
+        restLogoutMockMvc.perform(post("/api/annotation-sets")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(annotationSetDTO)))
             .andExpect(status().isBadRequest());
@@ -128,7 +119,7 @@ public class AnnotationSetResourceIntTest {
         AnnotationSetDTO annotationSetDTO = annotationSetMapper.toDto(annotationSet);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restAnnotationSetMockMvc.perform(post("/api/annotation-sets")
+        restLogoutMockMvc.perform(post("/api/annotation-sets")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(annotationSetDTO)))
             .andExpect(status().isCreated());
@@ -145,7 +136,7 @@ public class AnnotationSetResourceIntTest {
         annotationSetRepository.saveAndFlush(annotationSet);
 
         // Get all the annotationSetList
-        restAnnotationSetMockMvc.perform(get("/api/annotation-sets?sort=id,desc"))
+        restLogoutMockMvc.perform(get("/api/annotation-sets?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(annotationSet.getId().toString())))
@@ -159,7 +150,7 @@ public class AnnotationSetResourceIntTest {
         annotationSetRepository.saveAndFlush(annotationSet);
 
         // Get the annotationSet
-        restAnnotationSetMockMvc.perform(get("/api/annotation-sets/{id}", annotationSet.getId()))
+        restLogoutMockMvc.perform(get("/api/annotation-sets/{id}", annotationSet.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(annotationSet.getId().toString()))
@@ -170,8 +161,8 @@ public class AnnotationSetResourceIntTest {
     @Transactional
     public void getNonExistingAnnotationSet() throws Exception {
         // Get the annotationSet
-        restAnnotationSetMockMvc.perform(get("/api/annotation-sets/{id}", UUID.randomUUID()))
-            .andExpect(status().isNotFound());
+        restLogoutMockMvc.perform(get("/api/annotation-sets/{id}", UUID.randomUUID()))
+            .andExpect(status().isNoContent());
     }
 
     @Test
@@ -190,7 +181,7 @@ public class AnnotationSetResourceIntTest {
             .documentId(UPDATED_DOCUMENT_ID);
         AnnotationSetDTO annotationSetDTO = annotationSetMapper.toDto(updatedAnnotationSet);
 
-        restAnnotationSetMockMvc.perform(put("/api/annotation-sets")
+        restLogoutMockMvc.perform(put("/api/annotation-sets")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(annotationSetDTO)))
             .andExpect(status().isOk());
@@ -211,7 +202,7 @@ public class AnnotationSetResourceIntTest {
         AnnotationSetDTO annotationSetDTO = annotationSetMapper.toDto(annotationSet);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restAnnotationSetMockMvc.perform(put("/api/annotation-sets")
+        restLogoutMockMvc.perform(put("/api/annotation-sets")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(annotationSetDTO)))
             .andExpect(status().isOk());
@@ -230,7 +221,7 @@ public class AnnotationSetResourceIntTest {
         int databaseSizeBeforeDelete = annotationSetRepository.findAll().size();
 
         // Get the annotationSet
-        restAnnotationSetMockMvc.perform(delete("/api/annotation-sets/{id}", annotationSet.getId())
+        restLogoutMockMvc.perform(delete("/api/annotation-sets/{id}", annotationSet.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
