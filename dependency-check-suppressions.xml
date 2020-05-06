@@ -402,5 +402,6 @@
         <cve>CVE-2019-10797</cve>
         <cve>CVE-2020-1935</cve>
         <cve>CVE-2020-11612</cve>
+        <cve>CVE-2020-9488</cve>
     </suppress>
 </suppressions>
