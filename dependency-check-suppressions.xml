@@ -376,6 +376,7 @@
     <suppress>
         <notes>No newer version available</notes>
         <cve>CVE-2020-9484</cve>
+        <cve>CVE-2020-10683</cve>
         <cve>CVE-2020-1945</cve>
         <cve>CVE-2020-5408</cve>
         <cve>CVE-2020-5407</cve>
