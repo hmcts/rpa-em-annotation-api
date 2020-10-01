@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.em.annotation.smoke;
 
 import io.restassured.RestAssured;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @PropertySource(value = "classpath:application.yml")
 public class SmokeTest {
 
+    private static final String MESSAGE = "Welcome to EM Annotation API!";
+
     @Value("${test.url}")
     String testUrl;
 
@@ -19,10 +22,12 @@ public class SmokeTest {
 
         RestAssured.useRelaxedHTTPSValidation();
 
-        RestAssured.given()
-            .request("GET", testUrl + "/health")
+        String response = RestAssured.given()
+            .request("GET", testUrl + "/")
             .then()
-            .statusCode(200);
+            .statusCode(200).extract().body().asString();
+
+        Assert.assertEquals(MESSAGE, response);
 
 
     }

@@ -18,6 +18,7 @@ import java.util.UUID;
 public interface AnnotationMapper extends EntityMapper<AnnotationDTO, Annotation> {
 
     @Mapping(source = "annotationSet.id", target = "annotationSetId")
+    @Mapping(target = "documentId", ignore = true)
     AnnotationDTO toDto(Annotation annotation);
 
     @Mapping(target = "comments")

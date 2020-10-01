@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.em.annotation.service;
 
-import uk.gov.hmcts.reform.idam.client.models.UserDetails;
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 public interface IdamDetailsFilterService {
-    void saveIdamDetails(UserDetails userDetails);
+    void saveIdamDetails(UserInfo userInfo);
 }

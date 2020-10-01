@@ -12,12 +12,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
+import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+
 
 import java.io.IOException;
 
 @SpringBootTest(classes = {TestUtil.class, EmTestConfig.class})
 @PropertySource(value = "classpath:application.yml")
-@RunWith(SpringRunner.class)
+@RunWith(SpringIntegrationSerenityRunner.class)
 public class OpenIdConnectScenarios {
 
     @Rule

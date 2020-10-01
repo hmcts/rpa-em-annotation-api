@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.em.annotation.repository.AnnotationRepository;
 import uk.gov.hmcts.reform.em.annotation.repository.TagRepository;
 import uk.gov.hmcts.reform.em.annotation.rest.errors.ExceptionTranslator;
 import uk.gov.hmcts.reform.em.annotation.service.AnnotationService;
+import uk.gov.hmcts.reform.em.annotation.service.AnnotationSetService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.AnnotationDTO;
 import uk.gov.hmcts.reform.em.annotation.service.mapper.AnnotationMapper;
 
@@ -62,6 +63,9 @@ public class AnnotationResourceIntTest extends BaseTest {
 
     @Autowired
     private AnnotationRepository annotationRepository;
+
+    @Autowired
+    private AnnotationSetService annotationSetService;
 
     @Autowired
     private TagRepository tagRepository;
@@ -148,6 +152,8 @@ public class AnnotationResourceIntTest extends BaseTest {
         uuid = UUID.randomUUID();
         annotation.setId(uuid);
         AnnotationDTO annotationDTO = annotationMapper.toDto(annotation);
+        annotationDTO.setAnnotationSetId(UUID.randomUUID());
+        annotationDTO.setDocumentId("DocId");
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restLogoutMockMvc.perform(post("/api/annotations")
@@ -229,6 +235,8 @@ public class AnnotationResourceIntTest extends BaseTest {
             .annotationType(UPDATED_ANNOTATION_TYPE.toString())
             .page(UPDATED_PAGE);
         AnnotationDTO annotationDTO = annotationMapper.toDto(updatedAnnotation);
+        annotationDTO.setAnnotationSetId(UUID.randomUUID());
+        annotationDTO.setDocumentId("DocId");
 
         restLogoutMockMvc.perform(put("/api/annotations")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -250,6 +258,8 @@ public class AnnotationResourceIntTest extends BaseTest {
 
         // Create the Annotation
         AnnotationDTO annotationDTO = annotationMapper.toDto(annotation);
+        annotationDTO.setAnnotationSetId(UUID.randomUUID());
+        annotationDTO.setDocumentId("DocId");
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restLogoutMockMvc.perform(put("/api/annotations")

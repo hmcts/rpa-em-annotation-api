@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.em.annotation.rest.errors;
 
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -44,8 +47,14 @@ public class ExceptionTranslator implements ProblemHandling {
         ProblemBuilder builder = Problem.builder()
             .withType(Problem.DEFAULT_TYPE.equals(problem.getType()) ? ErrorConstants.DEFAULT_TYPE : problem.getType())
             .withStatus(problem.getStatus())
-            .withTitle(problem.getTitle())
-            .with("path", request.getNativeRequest(HttpServletRequest.class).getRequestURI());
+            .withTitle(problem.getTitle());
+
+        if (Objects.nonNull(request)) {
+            HttpServletRequest httpServletRequest = request.getNativeRequest(HttpServletRequest.class);
+            if (Objects.nonNull(httpServletRequest)) {
+                builder.with("path", httpServletRequest.getRequestURI());
+            }
+        }
 
         if (problem instanceof ConstraintViolationProblem) {
             builder
@@ -100,6 +109,24 @@ public class ExceptionTranslator implements ProblemHandling {
             .withStatus(Status.CONFLICT)
             .with("message", ErrorConstants.ERR_CONCURRENCY_FAILURE)
             .build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleAccessDenied(AccessDeniedException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder()
+                .withStatus(Status.FORBIDDEN)
+                .with("message", ErrorConstants.ERR_FORBIDDEN)
+                .build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUnAuthorised(BadCredentialsException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder()
+                .withStatus(Status.UNAUTHORIZED)
+                .with("message", ErrorConstants.ERR_UNAUTHORISED)
+                .build();
         return create(ex, problem, request);
     }
 }

@@ -10,9 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
+import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+
 
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 @SpringBootTest(classes = {TestUtil.class, EmTestConfig.class})
 @PropertySource(value = "classpath:application.yml")
-@RunWith(SpringRunner.class)
+@RunWith(SpringIntegrationSerenityRunner.class)
 public class AnnotationScenarios {
 
     @Autowired

@@ -12,10 +12,11 @@ import uk.gov.hmcts.reform.em.annotation.BaseTest;
 import uk.gov.hmcts.reform.em.annotation.domain.IdamDetails;
 import uk.gov.hmcts.reform.em.annotation.repository.IdamDetailsRepository;
 import uk.gov.hmcts.reform.em.annotation.service.IdamDetailsFilterService;
-import uk.gov.hmcts.reform.idam.client.models.UserDetails;
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,12 +38,11 @@ public class IdamDetailsFilterServiceImplIntTest extends BaseTest {
 
         assertFalse(idamDetailsRepository.existsById("1"));
 
-        final UserDetails userDetails = UserDetails.builder()
-                .id("1")
-                .forename("FN")
-                .email("user@idam.com")
-                .build();
-        idamDetailsFilterService.saveIdamDetails(userDetails);
+        final UserInfo userInfo = UserInfo.builder()
+            .uid("1")
+            .givenName("John").familyName("Doe")
+            .roles(asList("Admin", "CaseWorker")).build();
+        idamDetailsFilterService.saveIdamDetails(userInfo);
 
         Assert.assertTrue(idamDetailsRepository.existsById("1"));
 
@@ -54,12 +54,11 @@ public class IdamDetailsFilterServiceImplIntTest extends BaseTest {
 
         final int countBeforeSave = idamDetailsRepository.findAll().size();
 
-        final UserDetails userDetails = UserDetails.builder()
-                .id(null)
-                .forename("FN")
-                .email("user@idam.com")
-                .build();
-        idamDetailsFilterService.saveIdamDetails(userDetails);
+        final UserInfo userInfo = UserInfo.builder()
+            .uid(null)
+            .givenName("John").familyName("Doe")
+            .roles(asList("Admin", "CaseWorker")).build();
+        idamDetailsFilterService.saveIdamDetails(userInfo);
 
         final int countPostSave = idamDetailsRepository.findAll().size();
 
@@ -75,13 +74,11 @@ public class IdamDetailsFilterServiceImplIntTest extends BaseTest {
         final String randomId = random(3, false, true);
         final String surname = random(8, true, false);
 
-        final UserDetails userDetails = UserDetails.builder()
-                .id(randomId)
-                .forename("FN")
-                .surname(surname)
-                .email("user@idam.com")
-                .build();
-        idamDetailsFilterService.saveIdamDetails(userDetails);
+        final UserInfo userInfo = UserInfo.builder()
+            .uid(randomId)
+            .givenName("John").familyName(surname)
+            .roles(asList("Admin", "CaseWorker")).build();
+        idamDetailsFilterService.saveIdamDetails(userInfo);
 
         assertTrue(idamDetailsRepository.existsById(randomId));
 

@@ -7,17 +7,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.domain.Annotation;
+import uk.gov.hmcts.reform.em.annotation.domain.AnnotationSet;
 import uk.gov.hmcts.reform.em.annotation.repository.AnnotationRepository;
 import uk.gov.hmcts.reform.em.annotation.repository.TagRepository;
 import uk.gov.hmcts.reform.em.annotation.service.AnnotationService;
+import uk.gov.hmcts.reform.em.annotation.service.AnnotationSetService;
 import uk.gov.hmcts.reform.em.annotation.service.TagService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.AnnotationDTO;
+import uk.gov.hmcts.reform.em.annotation.service.dto.AnnotationSetDTO;
 import uk.gov.hmcts.reform.em.annotation.service.dto.TagDTO;
 import uk.gov.hmcts.reform.em.annotation.service.mapper.AnnotationMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +36,8 @@ public class AnnotationServiceImpl implements AnnotationService {
 
     private final AnnotationRepository annotationRepository;
 
+    private final AnnotationSetService annotationSetService;
+
     private final TagService tagService;
 
     private final AnnotationMapper annotationMapper;
@@ -41,10 +47,12 @@ public class AnnotationServiceImpl implements AnnotationService {
 
     public AnnotationServiceImpl(AnnotationRepository annotationRepository,
                                  AnnotationMapper annotationMapper,
+                                 AnnotationSetService annotationSetService,
                                  TagService tagService,
                                  EntityManager entityManager) {
         this.annotationRepository = annotationRepository;
         this.annotationMapper = annotationMapper;
+        this.annotationSetService = annotationSetService;
         this.tagService = tagService;
         this.entityManager = entityManager;
     }
@@ -59,6 +67,15 @@ public class AnnotationServiceImpl implements AnnotationService {
     public AnnotationDTO save(AnnotationDTO annotationDTO) {
         log.debug("Request to save Annotation : {}", annotationDTO);
         final Annotation annotation = annotationMapper.toEntity(annotationDTO);
+
+        Optional<AnnotationSetDTO> existingAnnotationSet = annotationSetService.findOne(annotationDTO.getAnnotationSetId());
+        if (!existingAnnotationSet.isPresent()) {
+            AnnotationSetDTO annotationSetDTO = new AnnotationSetDTO();
+            annotationSetDTO.setId(annotationDTO.getAnnotationSetId());
+            annotationSetDTO.setDocumentId(annotationDTO.getDocumentId());
+            annotationSetDTO.setAnnotations(new HashSet<>());
+            annotationSetService.save(annotationSetDTO);
+        }
 
         for (TagDTO tag : annotationDTO.getTags()) {
             tag.setCreatedBy(annotationDTO.getCreatedBy());
