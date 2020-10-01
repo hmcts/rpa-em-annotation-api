@@ -126,10 +126,8 @@ app-insights:
   request-component: on
   telemetry-component: on
 
-#
-#toggle:
-#  includeidamhealth: ${ENABLE_IDAM_HEALTH_CHECK:false}
-#  includes2shealth: ${ENABLE_S2S_HEALTH_CHECK:false}
+endpoint-toggles:
+  metadata: ${ENABLE_METADATA_ENDPOINT:false}
 
 # OpenId Connect
 oidc:

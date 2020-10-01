@@ -24,6 +24,10 @@ public class BookmarkDTO {
 
     private Double yCoordinate;
 
+    private UUID parent;
+
+    private UUID previous;
+
     public UUID getId() {
         return id;
     }
@@ -78,5 +82,21 @@ public class BookmarkDTO {
 
     public void setyCoordinate(Double yCoordinate) {
         this.yCoordinate = yCoordinate;
+    }
+
+    public UUID getParent() {
+        return parent;
+    }
+
+    public void setParent(UUID parent) {
+        this.parent = parent;
+    }
+
+    public UUID getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(UUID previous) {
+        this.previous = previous;
     }
 }

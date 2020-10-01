@@ -1,5 +1,4 @@
 variable "product" {
-  type = "string"
 }
 
 variable "shared_product_name" {
@@ -7,7 +6,6 @@ variable "shared_product_name" {
 }
 
 variable "component" {
-  type = "string"
 }
 
 variable "team_name" {
@@ -19,16 +17,13 @@ variable "app_language" {
 }
 
 variable "location" {
-  type    = "string"
   default = "UK South"
 }
 
 variable "env" {
-  type = "string"
 }
 
 variable "subscription" {
-  type = "string"
 }
 
 variable "ilbIp"{}
@@ -36,12 +31,11 @@ variable "ilbIp"{}
 variable "tenant_id" {}
 
 variable "jenkins_AAD_objectId" {
-  type = "string"
   description = "(Required) The Azure AD object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies."
 }
 
 variable "common_tags" {
-  type = "map"
+  type = map(string)
 }
 ////////////////////////////////////////////////
 //Addtional Vars ///////////////////////////////
@@ -133,14 +127,12 @@ variable "managed_identity_object_id" {
 }
 
 variable "appinsights_location" {
-  type        = "string"
   default     = "West Europe"
   description = "Location for Application Insights"
 }
 
 variable "application_type" {
-  type        = "string"
-  default     = "Web"
+  default     = "web"
   description = "Type of Application Insights (Web/Other)"
 }
 ////////////////////////////////////////////////

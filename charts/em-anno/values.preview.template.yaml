@@ -12,5 +12,6 @@ java:
     SPRING_DATASOURCE_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     OPEN_ID_API_BASE_URI: https://idam-web-public.aat.platform.hmcts.net/o
     ENABLE_LIQUIBASE: true
+    ENABLE_METADATA_ENDPOINT: true
   postgresql:
     enabled: true

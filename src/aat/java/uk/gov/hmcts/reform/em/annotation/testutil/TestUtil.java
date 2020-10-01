@@ -1,17 +1,17 @@
 package uk.gov.hmcts.reform.em.annotation.testutil;
 
-import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
-import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
-
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.em.annotation.service.dto.MetadataDto;
+import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
+import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
+
+import javax.annotation.PostConstruct;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TestUtil {
@@ -24,6 +24,8 @@ public class TestUtil {
 
     private String idamAuth;
     private String s2sAuth;
+
+    private UUID documentId =  UUID.randomUUID();
 
     @PostConstruct
     void postConstruct() {
@@ -60,6 +62,15 @@ public class TestUtil {
     public RequestSpecification validS2SAuthWithEmptyIdamAuth() {
 
         return s2sAuthRequest().header("Authorization", null);
+    }
+
+    public MetadataDto createMetadataDto() {
+
+        MetadataDto metadataDto = new MetadataDto();
+        metadataDto.setRotationAngle(90);
+        metadataDto.setDocumentId(documentId);
+
+        return metadataDto;
     }
 
     private RequestSpecification emptyS2sAuthRequest() {

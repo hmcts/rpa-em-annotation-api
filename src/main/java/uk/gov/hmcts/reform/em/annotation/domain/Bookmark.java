@@ -2,10 +2,7 @@ package uk.gov.hmcts.reform.em.annotation.domain;
 
 import org.springframework.data.annotation.CreatedBy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.UUID;
@@ -39,6 +36,12 @@ public class Bookmark implements Serializable {
 
     @Column(name = "y_coordinate")
     private Double yCoordinate;
+
+    @Column(name = "parent")
+    private UUID parent;
+
+    @Column(name = "previous")
+    private UUID previous;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
 
@@ -97,5 +100,22 @@ public class Bookmark implements Serializable {
     public void setyCoordinate(Double yCoordinate) {
         this.yCoordinate = yCoordinate;
     }
+
+    public UUID getParent() {
+        return parent;
+    }
+
+    public void setParent(UUID parent) {
+        this.parent = parent;
+    }
+
+    public UUID getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(UUID previous) {
+        this.previous = previous;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 }

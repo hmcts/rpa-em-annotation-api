@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.em.annotation.repository.IdamRepository;
 import uk.gov.hmcts.reform.em.annotation.service.IdamDetailsFilterService;
-import uk.gov.hmcts.reform.idam.client.models.UserDetails;
+import uk.gov.hmcts.reform.idam.client.models.UserInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,8 +36,8 @@ public class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
         if (jwt.containsClaim(TOKEN_NAME) && jwt.getClaim(TOKEN_NAME).equals(ACCESS_TOKEN)) {
-            UserDetails userDetails = idamRepository.getUserDetails(jwt.getTokenValue());
-            idamDetailsFilterService.saveIdamDetails(userDetails);
+            UserInfo userInfo = idamRepository.getUserInfo(jwt.getTokenValue());
+            idamDetailsFilterService.saveIdamDetails(userInfo);
         }
         return authorities;
     }

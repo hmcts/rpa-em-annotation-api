@@ -11,7 +11,6 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.Application;
 import uk.gov.hmcts.reform.em.annotation.BaseTest;
@@ -22,9 +21,11 @@ import uk.gov.hmcts.reform.em.annotation.repository.BookmarkRepository;
 import uk.gov.hmcts.reform.em.annotation.rest.errors.ExceptionTranslator;
 import uk.gov.hmcts.reform.em.annotation.service.BookmarkService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.BookmarkDTO;
+import uk.gov.hmcts.reform.em.annotation.service.dto.DeleteBookmarkDTO;
 import uk.gov.hmcts.reform.em.annotation.service.mapper.BookmarkMapper;
 
 import javax.persistence.EntityManager;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -195,6 +196,57 @@ public class BookmarkResourceIntTest extends BaseTest {
 
     @Test
     @Transactional
+    public void updateMultipleBookmark() throws Exception {
+        bookmarkRepository.saveAndFlush(bookmark);
+
+        int databaseSizeBeforeUpdate = bookmarkRepository.findAll().size();
+
+        Bookmark updatedBookmark = bookmarkRepository.findById(bookmark.getId()).get();
+
+        em.detach(updatedBookmark);
+        updatedBookmark
+                .setName("Updated Bookmark");
+        BookmarkDTO bookmarkDTO = bookmarkMapper.toDto(updatedBookmark);
+        BookmarkDTO bookmarkDTO1 = bookmarkMapper.toDto(updatedBookmark);
+        bookmarkDTO1.setId(UUID.randomUUID());
+        bookmarkDTO1.setName("New Bookmark");
+        BookmarkDTO bookmarkDTO2 = bookmarkMapper.toDto(updatedBookmark);
+        bookmarkDTO2.setId(UUID.randomUUID());
+        bookmarkDTO2.setName("Another new Bookmark");
+
+        restLogoutMockMvc.perform(put("/api/bookmarks_multiple")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(Arrays.asList(bookmarkDTO, bookmarkDTO1, bookmarkDTO2))))
+                .andExpect(status().isOk());
+
+        // Validate the Comment in the database
+        List<Bookmark> bookmarkList = bookmarkRepository.findAll();
+        assertThat(bookmarkList).hasSize(databaseSizeBeforeUpdate + 2);
+        Bookmark testBookmark = bookmarkList.get(bookmarkList.size() - 1);
+        assertThat(testBookmark.getName()).isEqualTo("Another new Bookmark");
+        testBookmark = bookmarkList.get(bookmarkList.size() - 2);
+        assertThat(testBookmark.getName()).isEqualTo("New Bookmark");
+    }
+
+    @Test
+    @Transactional
+    public void updateMultipleNonExistentBookmark() throws Exception {
+        int databaseSizeBeforeUpdate = bookmarkRepository.findAll().size();
+        bookmark.setId(null);
+
+        BookmarkDTO bookmarkDTO = bookmarkMapper.toDto(bookmark);
+
+        restLogoutMockMvc.perform(put("/api/bookmarks")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(Arrays.asList(bookmarkDTO))))
+                .andExpect(status().isBadRequest());
+
+        List<Bookmark> bookmarkList = bookmarkRepository.findAll();
+        assertThat(bookmarkList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
     public void getBookmarksByDocumentId() throws Exception {
         bookmark = bookmarkRepository.saveAndFlush(bookmark);
         when(securityUtils.getCurrentUserLogin()).thenReturn(Optional.of("bob"));
@@ -228,5 +280,43 @@ public class BookmarkResourceIntTest extends BaseTest {
 
         List<Bookmark> bookmarkList = bookmarkRepository.findAll();
         assertThat(bookmarkList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteMultipleBookmarks() throws Exception {
+        bookmarkRepository.saveAndFlush(bookmark);
+        Bookmark updatedBookmark = bookmarkRepository.findById(bookmark.getId()).get();
+
+        em.detach(updatedBookmark);
+        BookmarkDTO bookmarkDTO = bookmarkMapper.toDto(updatedBookmark);
+        BookmarkDTO bookmarkDTO1 = bookmarkMapper.toDto(updatedBookmark);
+        bookmarkDTO1.setId(UUID.randomUUID());
+        bookmarkDTO1.setName("New Bookmark");
+        bookmarkRepository.saveAndFlush(bookmarkMapper.toEntity(bookmarkDTO1));
+
+        BookmarkDTO bookmarkDTO2 = bookmarkMapper.toDto(updatedBookmark);
+        bookmarkDTO2.setId(UUID.randomUUID());
+        bookmarkDTO2.setName("Another new Bookmark");
+        bookmarkRepository.saveAndFlush(bookmarkMapper.toEntity(bookmarkDTO2));
+
+        BookmarkDTO bookmarkDTO3 = bookmarkMapper.toDto(updatedBookmark);
+        bookmarkDTO3.setId(UUID.randomUUID());
+        bookmarkDTO3.setName("A Bookmark");
+        bookmarkRepository.saveAndFlush(bookmarkMapper.toEntity(bookmarkDTO3));
+
+        int databaseSizeBeforeDelete = bookmarkRepository.findAll().size();
+
+        DeleteBookmarkDTO deleteBookmarkDTO = new DeleteBookmarkDTO();
+        deleteBookmarkDTO.setUpdated(bookmarkDTO3);
+        deleteBookmarkDTO.setDeleted(Arrays.asList(bookmarkDTO.getId(), bookmarkDTO1.getId(), bookmarkDTO2.getId()));
+
+        restLogoutMockMvc.perform(delete("/api/bookmarks_multiple")
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(deleteBookmarkDTO)))
+                .andExpect(status().isOk());
+
+        List<Bookmark> bookmarkList = bookmarkRepository.findAll();
+        assertThat(bookmarkList).hasSize(databaseSizeBeforeDelete - 3);
     }
 }

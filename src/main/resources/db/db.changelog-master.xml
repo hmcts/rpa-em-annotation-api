@@ -19,4 +19,6 @@
     <include file="./changelog/20181005171348_changelog.xml" relativeToChangelogFile="true"/>
     <include file="./changelog/20200303154954_added_entity_Tag.xml" relativeToChangelogFile="true"/>
     <include file="./changelog/20200320123648_added_entity_Bookmark.xml" relativeToChangelogFile="true"/>
+    <include file="./changelog/20200422103555_added_entity_constraints_Bookmark.xml" relativeToChangelogFile="true"/>
+    <include file="./changelog/20200629224352_added_entity_Metadata.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

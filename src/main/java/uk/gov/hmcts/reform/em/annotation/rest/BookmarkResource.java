@@ -17,12 +17,16 @@ import uk.gov.hmcts.reform.em.annotation.rest.util.HeaderUtil;
 import uk.gov.hmcts.reform.em.annotation.rest.util.PaginationUtil;
 import uk.gov.hmcts.reform.em.annotation.service.BookmarkService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.BookmarkDTO;
+import uk.gov.hmcts.reform.em.annotation.service.dto.DeleteBookmarkDTO;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Bookmarks.
@@ -97,6 +101,44 @@ public class BookmarkResource {
     }
 
     /**
+     * PUT  /bookmarks_multiple : Updates multiple existing bookmarks.
+     *
+     * @param bookmarkDTOList the list of bookmarkDTO objects to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated bookmarkDTO objects,
+     * or with status 400 (Bad Request) if the bookmarkDTO objects are not valid,
+     * or with status 500 (Internal Server Error) if the bookmarkDTO objects couldn't be updated
+     */
+    @ApiOperation(value = "Update multiple existing bookmarkDTO objects", notes = "A PUT request to update multiple bookmarkDTO objects")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success", response = BookmarkDTO.class),
+            @ApiResponse(code = 400, message = "bookmarkDTO objects not valid, invalid id"),
+            @ApiResponse(code = 500, message = "bookmarkDTO objects couldn't be updated"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+    })
+    @PutMapping("/bookmarks_multiple")
+    public ResponseEntity<List<BookmarkDTO>> updateMultipleBookmarks(@Valid @RequestBody List<BookmarkDTO> bookmarkDTOList) {
+        log.debug("REST request to update list of Bookmark objects : {}", bookmarkDTOList);
+
+        if (bookmarkDTOList.stream().anyMatch(bookmark -> bookmark.getId() == null)) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+
+        List<BookmarkDTO> result = bookmarkDTOList.stream()
+                .map(bookmarkService::save)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME,
+                        bookmarkDTOList.stream()
+                                .map(BookmarkDTO::getId)
+                                .collect(Collectors.toList())
+                                .toString()))
+                .body(result);
+    }
+
+    /**
      * GET  /bookmarks/:documentId : get all the bookmarks for a specific document.
      *
      * @param pageable the pagination information
@@ -139,5 +181,42 @@ public class BookmarkResource {
         log.debug("REST request to delete Bookmark : {}", id);
         bookmarkService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+    }
+
+    /**
+     * DELETE  /bookmarks : delete multiple bookmarks.
+     *
+     * @param deleteBookmarkDTO object containing the list of bookmarkDTO objects to delete and parent to update
+     * @return the ResponseEntity with status 200 (OK),
+     * or with status 400 (Bad Request) if the bookmarkDTO objects are not valid,
+     * or with status 500 (Internal Server Error) if the bookmarkDTO objects couldn't be deleted
+     */
+    @ApiOperation(value = "Delete multiple existing bookmarkDTO objects", notes = "A DELETE request to delete multiple bookmarkDTO objects")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 401, message = "Unauthorised"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+    })
+    @DeleteMapping("/bookmarks_multiple")
+    public ResponseEntity<Void> deleteMultipleBookmarks(@Valid @RequestBody DeleteBookmarkDTO deleteBookmarkDTO) {
+        log.debug("REST request to delete list of Bookmark objects : {}", deleteBookmarkDTO.getDeleted());
+
+        if (deleteBookmarkDTO.getDeleted().stream().anyMatch(Objects::isNull)) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+
+        deleteBookmarkDTO.getDeleted().forEach(bookmarkService::delete);
+
+        if (!Objects.isNull(deleteBookmarkDTO.getUpdated())) {
+            bookmarkService.save(deleteBookmarkDTO.getUpdated());
+        }
+
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityDeletionAlert(
+                        ENTITY_NAME,
+                        new ArrayList<>(deleteBookmarkDTO.getDeleted())
+                                .toString()))
+                .build();
     }
 }

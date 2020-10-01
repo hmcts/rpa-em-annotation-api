@@ -15,6 +15,9 @@ To pull all dependencies and set up IDAM data run:
 git clone https://github.com/hmcts/em-annotation-app.git
 cd em-annotation-app/
 az acr login --name hmctspublic && az acr login --name hmctsprivate
+
+Refer to the Developer Environments page on Confluence to get the  start-local-environment.sh & docker-compose-dependencies.yml files.
+
 docker-compose -f docker-compose-dependencies.yml pull
 ./bin/start-local-environment.sh <DOCMOSIS_ACCESS_KEY_VALUE>
 ```
@@ -54,6 +57,7 @@ You can then publish your pact tests locally by first running the pact docker-co
 docker-compose -f docker-pactbroker-compose.yml up
 ```
 
+
 and then using it to publish your tests:
 
 ```
@@ -64,7 +68,7 @@ and then using it to publish your tests:
 
 It uses:
 
-* Java8
+* Java11
 * Spring boot
 * Junit, Mockito and SpringBootTest and Powermockito
 * Gradle
@@ -76,5 +80,4 @@ It uses:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-
 
