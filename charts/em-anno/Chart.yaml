@@ -1,7 +1,11 @@
-apiVersion: v1
+apiVersion: v2
 name: em-anno
-home: https://github.com/hmcts/rpa-em-annotation-api
-version: 0.1.19
+home: https://github.com/hmcts/em-annotation-api
+version: 1.0.0
 description: Helm chart for the HMCTS EM Annotation API
 maintainers:
   - name: HMCTS EM Team
+dependencies:
+  - name: java
+    version: 3.4.2
+    repository: https://hmctspublic.azurecr.io/helm/v1/repo/

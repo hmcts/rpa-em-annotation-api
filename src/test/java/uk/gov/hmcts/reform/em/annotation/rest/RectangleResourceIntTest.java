@@ -150,7 +150,7 @@ public class RectangleResourceIntTest extends BaseTest {
         // Get all the rectangleList
         restLogoutMockMvc.perform(get("/api/rectangles?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].id").value(hasItem(rectangle.getId().toString())))
             .andExpect(jsonPath("$.[*].x").value(hasItem(DEFAULT_X)))
             .andExpect(jsonPath("$.[*].y").value(hasItem(DEFAULT_Y)))
@@ -167,7 +167,7 @@ public class RectangleResourceIntTest extends BaseTest {
         // Get the rectangle
         restLogoutMockMvc.perform(get("/api/rectangles/{id}", rectangle.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(rectangle.getId().toString()))
             .andExpect(jsonPath("$.x").value(DEFAULT_X))
             .andExpect(jsonPath("$.y").value(DEFAULT_Y))

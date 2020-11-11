@@ -138,7 +138,7 @@ public class AnnotationSetResourceIntTest extends BaseTest {
         // Get all the annotationSetList
         restLogoutMockMvc.perform(get("/api/annotation-sets?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].id").value(hasItem(annotationSet.getId().toString())))
             .andExpect(jsonPath("$.[*].documentId").value(hasItem(DEFAULT_DOCUMENT_ID.toString())));
     }
@@ -152,7 +152,7 @@ public class AnnotationSetResourceIntTest extends BaseTest {
         // Get the annotationSet
         restLogoutMockMvc.perform(get("/api/annotation-sets/{id}", annotationSet.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(annotationSet.getId().toString()))
             .andExpect(jsonPath("$.documentId").value(DEFAULT_DOCUMENT_ID.toString()));
     }

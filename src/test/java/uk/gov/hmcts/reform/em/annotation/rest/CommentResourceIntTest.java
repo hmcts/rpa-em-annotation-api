@@ -139,7 +139,7 @@ public class CommentResourceIntTest extends BaseTest {
         // Get all the commentList
         restLogoutMockMvc.perform(get("/api/comments?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].id").value(hasItem(comment.getId().toString())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())));
     }
@@ -153,7 +153,7 @@ public class CommentResourceIntTest extends BaseTest {
         // Get the comment
         restLogoutMockMvc.perform(get("/api/comments/{id}", comment.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(comment.getId().toString()))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()));
     }
