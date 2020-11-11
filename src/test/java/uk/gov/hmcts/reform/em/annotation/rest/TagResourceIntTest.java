@@ -88,7 +88,7 @@ public class TagResourceIntTest extends BaseTest {
 
         restLogoutMockMvc.perform(get("/api/tags/{createdBy}", tag.getCreatedBy()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].name").value(tag.getName()))
                 .andExpect(jsonPath("$.[*].label").value(tag.getLabel()));
 

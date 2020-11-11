@@ -253,7 +253,7 @@ public class BookmarkResourceIntTest extends BaseTest {
 
         restLogoutMockMvc.perform(get("/api/" + bookmark.getDocumentId() + "/bookmarks"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(bookmark.getId().toString())))
                 .andExpect(jsonPath("$.[*].name").value(hasItem(bookmark.getName())));
     }

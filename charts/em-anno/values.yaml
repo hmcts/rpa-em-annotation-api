@@ -5,6 +5,7 @@ java:
     nameOverride: em-anno-db
   image: 'hmctspublic.azurecr.io/em/anno:latest'
   applicationPort: 8080
+  ingressHost: em-anno-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: em
   keyVaults:
     em-anno:

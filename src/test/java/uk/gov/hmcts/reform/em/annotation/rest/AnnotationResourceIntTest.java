@@ -180,7 +180,7 @@ public class AnnotationResourceIntTest extends BaseTest {
         // Get all the annotationList
         restLogoutMockMvc.perform(get("/api/annotations?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].id").value(hasItem(annotation.getId().toString())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_ANNOTATION_TYPE.toString())))
             .andExpect(jsonPath("$.[*].page").value(hasItem(DEFAULT_PAGE)));
@@ -200,7 +200,7 @@ public class AnnotationResourceIntTest extends BaseTest {
         // Get the annotation
         restLogoutMockMvc.perform(get("/api/annotations/{id}", annotation.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(annotation.getId().toString()))
             .andExpect(jsonPath("$.type").value(DEFAULT_ANNOTATION_TYPE.toString()))
             .andExpect(jsonPath("$.page").value(DEFAULT_PAGE));
