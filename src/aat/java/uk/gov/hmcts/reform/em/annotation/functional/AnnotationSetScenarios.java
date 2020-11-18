@@ -1,31 +1,47 @@
 package uk.gov.hmcts.reform.em.annotation.functional;
 
+import io.restassured.specification.RequestSpecification;
+import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+import net.thucydides.core.annotations.WithTag;
+import net.thucydides.core.annotations.WithTags;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
 
 import java.util.UUID;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @SpringBootTest(classes = {TestUtil.class, EmTestConfig.class})
-@PropertySource(value = "classpath:application.yml")
-@RunWith(SpringRunner.class)
+@TestPropertySource(value = "classpath:application.yml")
+@RunWith(SpringIntegrationSerenityRunner.class)
+@WithTags({@WithTag("testType:Functional")})
 public class AnnotationSetScenarios {
 
     @Autowired
-    TestUtil testUtil;
+    private TestUtil testUtil;
 
     @Value("${test.url}")
-    String testUrl;
+    private String testUrl;
 
-    private String documentId = UUID.randomUUID().toString();
+    private final String documentId = UUID.randomUUID().toString();
+
+    private RequestSpecification request;
+
+    @Before
+    public void setupRequestSpecification() {
+        request = testUtil
+                .authRequest()
+                .baseUri(testUrl)
+                .contentType(APPLICATION_JSON_VALUE);
+    }
 
     @Test
     public void testCreateAnnotationSetSuccess() {
@@ -34,12 +50,9 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", UUID.randomUUID().toString());
         jsonObject.put("id", UUID.randomUUID().toString());
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
     }
@@ -51,20 +64,14 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", UUID.randomUUID().toString());
         jsonObject.put("id", UUID.randomUUID().toString());
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", testUrl + "/api/annotation-sets")
+        request
+                .get("/api/annotation-sets")
                 .then()
                 .statusCode(200);
     }
@@ -77,31 +84,22 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", UUID.randomUUID().toString());
         jsonObject.put("id", annotationSetId);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", testUrl + "/api/annotation-sets/" + annotationSetId)
+        request
+                .get("/api/annotation-sets/" + annotationSetId)
                 .then()
                 .statusCode(200);
     }
 
     @Test
     public void testGetAnnotationSetByIdNoContent() {
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", testUrl + "/api/annotation-sets/" + UUID.randomUUID().toString())
+        request
+                .get("/api/annotation-sets/" + UUID.randomUUID().toString())
                 .then()
                 .statusCode(204);
     }
@@ -114,24 +112,18 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", UUID.randomUUID().toString());
         jsonObject.put("id", annotationSetId);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
 
         jsonObject.remove("documentId");
         jsonObject.put("documentId", UUID.randomUUID().toString());
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("PUT", testUrl + "/api/annotation-sets")
+                .put("/api/annotation-sets")
                 .then()
                 .statusCode(200);
     }
@@ -144,20 +136,14 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", UUID.randomUUID().toString());
         jsonObject.put("id", annotationSetId);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("DELETE", testUrl + "/api/annotation-sets/" + annotationSetId)
+        request
+                .delete("/api/annotation-sets/" + annotationSetId)
                 .then()
                 .statusCode(200);
     }
@@ -169,31 +155,22 @@ public class AnnotationSetScenarios {
         jsonObject.put("documentId", documentId);
         jsonObject.put("id", UUID.randomUUID().toString());
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        request
                 .body(jsonObject.toString())
-                .request("POST", testUrl + "/api/annotation-sets")
+                .post("/api/annotation-sets")
                 .then()
                 .statusCode(201);
 
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", testUrl + "/api/annotation-sets/filter?documentId=" + documentId)
+        request
+                .get("/api/annotation-sets/filter?documentId=" + documentId)
                 .then()
                 .statusCode(200);
     }
 
     @Test
     public void testFilterAnnotationSetNotFound() {
-        testUtil
-                .authRequest()
-                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .request("GET", testUrl + "/api/annotation-sets/filter?documentId=" + "1234")
+        request
+                .get("/api/annotation-sets/filter?documentId=" + "1234")
                 .then()
                 .statusCode(404);
     }
