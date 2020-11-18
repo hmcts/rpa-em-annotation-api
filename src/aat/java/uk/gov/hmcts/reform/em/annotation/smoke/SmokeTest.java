@@ -1,31 +1,38 @@
 package uk.gov.hmcts.reform.em.annotation.smoke;
 
-import io.restassured.RestAssured;
+import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
+import net.serenitybdd.rest.SerenityRest;
+import net.thucydides.core.annotations.WithTag;
+import net.thucydides.core.annotations.WithTags;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import uk.gov.hmcts.reform.em.EmTestConfig;
 
-@RunWith(SpringRunner.class)
-@PropertySource(value = "classpath:application.yml")
+@SpringBootTest(classes = {EmTestConfig.class})
+@RunWith(SpringIntegrationSerenityRunner.class)
+@TestPropertySource(value = "classpath:application.yml")
+@WithTags({@WithTag("testType:Smoke")})
 public class SmokeTest {
 
     private static final String MESSAGE = "Welcome to EM Annotation API!";
 
     @Value("${test.url}")
-    String testUrl;
+    private String testUrl;
 
     @Test
     public void testHealthEndpoint() {
 
-        RestAssured.useRelaxedHTTPSValidation();
+        SerenityRest.useRelaxedHTTPSValidation();
 
-        String response = RestAssured.given()
-            .request("GET", testUrl + "/")
-            .then()
-            .statusCode(200).extract().body().asString();
+        String response = SerenityRest.given()
+                .baseUri(testUrl)
+                .get("/")
+                .then()
+                .statusCode(200).extract().body().asString();
 
         Assert.assertEquals(MESSAGE, response);
 
