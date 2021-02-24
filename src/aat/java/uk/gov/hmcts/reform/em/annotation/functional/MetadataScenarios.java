@@ -5,10 +5,7 @@ import net.serenitybdd.junit.spring.integration.SpringIntegrationSerenityRunner;
 import net.thucydides.core.annotations.WithTag;
 import net.thucydides.core.annotations.WithTags;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +16,7 @@ import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.service.dto.MetadataDto;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
 import uk.gov.hmcts.reform.em.annotation.testutil.ToggleProperties;
+import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +35,9 @@ public class MetadataScenarios {
 
     @Value("${test.url}")
     private String testUrl;
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(3);
 
     @Autowired
     ToggleProperties toggleProperties;

@@ -8,6 +8,7 @@ import org.hamcrest.Matchers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.em.EmTestConfig;
 import uk.gov.hmcts.reform.em.annotation.testutil.TestUtil;
+import uk.gov.hmcts.reform.em.test.retry.RetryRule;
 
 import java.util.UUID;
 
@@ -34,6 +36,9 @@ public class AnnotationScenarios {
 
     @Value("${test.url}")
     private String testUrl;
+
+    @Rule
+    public RetryRule retryRule = new RetryRule(3);
 
     private RequestSpecification request;
 

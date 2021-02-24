@@ -42,6 +42,10 @@ public class TestUtil {
                 .header("ServiceAuthorization", s2sHelper.getS2sToken());
     }
 
+    public RequestSpecification unauthenticatedRequest() {
+        return SerenityRest.given();
+    }
+
     public RequestSpecification emptyIdamAuthRequest() {
         return s2sAuthRequest()
                 .header("Authorization", null);
