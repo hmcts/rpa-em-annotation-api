@@ -5,18 +5,28 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.em.annotation.config.Constants;
 import uk.gov.hmcts.reform.em.annotation.rest.errors.BadRequestAlertException;
 import uk.gov.hmcts.reform.em.annotation.rest.util.HeaderUtil;
 import uk.gov.hmcts.reform.em.annotation.rest.util.PaginationUtil;
 import uk.gov.hmcts.reform.em.annotation.service.AnnotationSetService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.AnnotationSetDTO;
-
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +51,12 @@ public class AnnotationSetResource {
         this.annotationSetService = annotationSetService;
     }
 
+    @InitBinder
+    public void initBinder(WebDataBinder binder)
+    {
+        binder.setDisallowedFields(Constants.IS_ADMIN);
+    }
+
     /**
      * POST  /annotation-sets : Create a new annotationSet.
      *
@@ -56,7 +72,6 @@ public class AnnotationSetResource {
             @ApiResponse(code = 403, message = "Forbidden"),
     })
     @PostMapping("/annotation-sets")
-    //@Timed
     public ResponseEntity<AnnotationSetDTO> createAnnotationSet(@RequestBody AnnotationSetDTO annotationSetDTO) throws URISyntaxException {
         log.debug("REST request to save AnnotationSet : {}", annotationSetDTO);
         if (annotationSetDTO.getId() == null) {
@@ -91,7 +106,6 @@ public class AnnotationSetResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @PutMapping("/annotation-sets")
-    //@Timed
     public ResponseEntity<AnnotationSetDTO> updateAnnotationSet(@RequestBody AnnotationSetDTO annotationSetDTO) throws URISyntaxException {
         log.debug("REST request to update AnnotationSet : {}", annotationSetDTO);
         if (annotationSetDTO.getId() == null) {
@@ -117,7 +131,6 @@ public class AnnotationSetResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/annotation-sets")
-    //@Timed
     public ResponseEntity<List<AnnotationSetDTO>> getAllAnnotationSets(Pageable pageable) {
         log.debug("REST request to get a page of AnnotationSets");
         Page<AnnotationSetDTO> page = annotationSetService.findAll(pageable);
@@ -140,7 +153,6 @@ public class AnnotationSetResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/annotation-sets/{id}")
-    //@Timed
     public ResponseEntity<AnnotationSetDTO> getAnnotationSet(@PathVariable UUID id) {
         log.debug("REST request to get AnnotationSet : {}", id);
         Optional<AnnotationSetDTO> annotationSetDTO = annotationSetService.findOne(id);
@@ -161,10 +173,13 @@ public class AnnotationSetResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @DeleteMapping("/annotation-sets/{id}")
-    //@Timed
     public ResponseEntity<Void> deleteAnnotationSet(@PathVariable UUID id) {
         log.debug("REST request to delete AnnotationSet : {}", id);
-        annotationSetService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        try {
+            annotationSetService.delete(id);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

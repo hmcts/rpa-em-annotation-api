@@ -39,7 +39,6 @@ public class FilterAnnotationSet {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/annotation-sets/filter")
-    //@Timed
     public ResponseEntity<AnnotationSetDTO> getAllAnnotationSets(@RequestParam("documentId") String documentId) {
         log.debug("REST request to get a page of AnnotationSets");
         Optional<AnnotationSetDTO> optionalAnnotationSetDTO = annotationSetService.findOneByDocumentId(documentId);

@@ -200,17 +200,18 @@ public class CommentResourceIntTest extends BaseTest {
         int databaseSizeBeforeUpdate = commentRepository.findAll().size();
 
         // Create the Comment
+        comment.setId(null);
         CommentDTO commentDTO = commentMapper.toDto(comment);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restLogoutMockMvc.perform(put("/api/comments")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(commentDTO)))
-            .andExpect(status().isOk());
+            .andExpect(status().isBadRequest());
 
         // Validate the Comment in the database
         List<Comment> commentList = commentRepository.findAll();
-        assertThat(commentList).hasSize(databaseSizeBeforeUpdate + 1);
+        assertThat(commentList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
@@ -221,7 +222,7 @@ public class CommentResourceIntTest extends BaseTest {
 
         int databaseSizeBeforeDelete = commentRepository.findAll().size();
 
-        // Get the comment
+        // Delete the comment
         restLogoutMockMvc.perform(delete("/api/comments/{id}", comment.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
@@ -229,6 +230,22 @@ public class CommentResourceIntTest extends BaseTest {
         // Validate the database is empty
         List<Comment> commentList = commentRepository.findAll();
         assertThat(commentList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteNonExistingComment() throws Exception {
+
+        int databaseSizeBeforeDelete = commentRepository.findAll().size();
+
+        // Delete the comment
+        restLogoutMockMvc.perform(delete("/api/comments/{id}", UUID.randomUUID())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+
+        // Validate the database is empty
+        List<Comment> commentList = commentRepository.findAll();
+        assertThat(commentList).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test

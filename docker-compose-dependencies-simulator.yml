@@ -1,0 +1,52 @@
+---
+version: '2.1'
+
+services:
+  service-auth-provider-app:
+    image: hmctspublic.azurecr.io/rpe/service-auth-provider:latest
+    environment:
+      - microserviceKeys_em_gw=AAAAAAAAAAAAAAAA
+      - microserviceKeys_ccd_gw=AAAAAAAAAAAAAAAA
+      - microserviceKeys_em_annotation_app=AAAAAAAAAAAAAAAA
+      - JSON_CONSOLE_PRETTY_PRINT=false
+      - REFORM_SERVICE_TYPE=java
+      - REFORM_SERVICE_NAME=service-auth-provider-app
+      - REFORM_TEAM=rpe
+      - REFORM_ENVIRONMENT=docker
+      - PACKAGES_ENVIRONMENT=docker
+      - PACKAGES_PROJECT=rpe
+      - PACKAGES_NAME=service-auth-provider-app
+      - PACKAGES_VERSION=unkown
+      - TESTING_SUPPORT_ENABLED=true
+    ports:
+      - 4502:8489
+
+  idam-api:
+    image: hmctspublic.azurecr.io/hmcts/rse/rse-idam-simulator:latest
+    environment:
+      # these environment variables are used by java-logging library
+      ROOT_APPENDER:
+      JSON_CONSOLE_PRETTY_PRINT:
+      ROOT_LOGGING_LEVEL:
+      REFORM_SERVICE_TYPE:
+      REFORM_SERVICE_NAME:
+      REFORM_TEAM:
+      REFORM_ENVIRONMENT:
+      LOGBACK_DATE_FORMAT:
+      LOGBACK_REQUIRE_THREAD:
+      LOGBACK_REQUIRE_ALERT_LEVEL: "false"
+      LOGBACK_REQUIRE_ERROR_CODE: "false"
+      SERVER_PORT: 5000
+      SIMULATOR_OPENID_BASE_URL: http://localhost:5000
+    ports:
+      - 5000:5000
+
+  annotation-api-db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=emannotationapp
+      - POSTGRES_USER=emannotationapp
+      - POSTGRES_PASSWORD=emannotationapp
+    ports:
+      - 5444:5432

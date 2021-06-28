@@ -121,7 +121,7 @@ public class CommentScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String commentId = UUID.randomUUID().toString();
         final ValidatableResponse response = createComment(annotationId, commentId);
-        final String id = extractJSONObjectFromResponse(response).getString("id");
+        final String id = extractJsonObjectFromResponse(response).getString("id");
 
         request
                 .get("/api/comments/" + id)
@@ -159,7 +159,7 @@ public class CommentScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String commentId = UUID.randomUUID().toString();
         final ValidatableResponse response = createComment(annotationId, commentId);
-        final String id = extractJSONObjectFromResponse(response).getString("id");
+        final String id = extractJsonObjectFromResponse(response).getString("id");
 
         request
                 .get("/api/comments")
@@ -185,7 +185,7 @@ public class CommentScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String commentId = UUID.randomUUID().toString();
         final ValidatableResponse response = createComment(annotationId, commentId);
-        final JSONObject comment = extractJSONObjectFromResponse(response);
+        final JSONObject comment = extractJsonObjectFromResponse(response);
         comment.put("content", "updated text");
 
         request
@@ -246,18 +246,18 @@ public class CommentScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String commentId = UUID.randomUUID().toString();
         final ValidatableResponse response = createComment(annotationId, commentId);
-        final String id = extractJSONObjectFromResponse(response).getString("id");
+        final String id = extractJsonObjectFromResponse(response).getString("id");
         final ValidatableResponse deletedResponse = deleteCommentById(id);
 
         deletedResponse.statusCode(200);
     }
 
     @Test
-    public void shouldReturn500WhenDeleteCommentByNonExistentId() {
+    public void shouldReturn404WhenDeleteCommentByNonExistentId() {
         final String nonExistentId = UUID.randomUUID().toString();
         final ValidatableResponse deletedResponse = deleteCommentById(nonExistentId);
 
-        deletedResponse.statusCode(500);
+        deletedResponse.statusCode(404);
     }
 
     @Test
@@ -275,7 +275,7 @@ public class CommentScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String commentId = UUID.randomUUID().toString();
         final ValidatableResponse response = createComment(annotationId, commentId);
-        final JSONObject comment = extractJSONObjectFromResponse(response);
+        final JSONObject comment = extractJsonObjectFromResponse(response);
         final String id = comment.getString("id");
         deleteCommentById(id).statusCode(200);
         comment.put("content", "new text");
@@ -362,7 +362,7 @@ public class CommentScenarios {
     }
 
     @NotNull
-    private JSONObject extractJSONObjectFromResponse(final ValidatableResponse response) {
+    private JSONObject extractJsonObjectFromResponse(final ValidatableResponse response) {
         return response.extract().response().as(JSONObject.class);
     }
 }

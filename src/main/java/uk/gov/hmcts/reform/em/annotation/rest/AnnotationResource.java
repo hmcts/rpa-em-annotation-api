@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +56,6 @@ public class AnnotationResource {
             @ApiResponse(code = 403, message = "Forbidden"),
     })
     @PostMapping("/annotations")
-    //@Timed
     public ResponseEntity<AnnotationDTO> createAnnotation(@RequestBody AnnotationDTO annotationDTO) throws URISyntaxException {
         log.debug("REST request to save Annotation : {}", annotationDTO);
         if (annotationDTO.getId() == null) {
@@ -91,7 +91,6 @@ public class AnnotationResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @PutMapping("/annotations")
-    //@Timed
     public ResponseEntity<AnnotationDTO> updateAnnotation(@RequestBody AnnotationDTO annotationDTO) throws URISyntaxException {
         log.debug("REST request to update Annotation : {}", annotationDTO);
         if (annotationDTO.getId() == null) {
@@ -117,7 +116,6 @@ public class AnnotationResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/annotations")
-    //@Timed
     public ResponseEntity<List<AnnotationDTO>> getAllAnnotations(Pageable pageable) {
         log.debug("REST request to get a page of Annotations");
         Page<AnnotationDTO> page = annotationService.findAll(pageable);
@@ -139,7 +137,6 @@ public class AnnotationResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/annotations/{id}")
-    //@Timed
     public ResponseEntity<AnnotationDTO> getAnnotation(@PathVariable UUID id) {
         log.debug("REST request to get Annotation : {}", id);
         Optional<AnnotationDTO> annotationDTO = annotationService.findOne(id);
@@ -160,10 +157,13 @@ public class AnnotationResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @DeleteMapping("/annotations/{id}")
-    //@Timed
     public ResponseEntity<Void> deleteAnnotation(@PathVariable UUID id) {
         log.debug("REST request to delete Annotation : {}", id);
-        annotationService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        try {
+            annotationService.delete(id);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

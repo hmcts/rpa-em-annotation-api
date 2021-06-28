@@ -5,12 +5,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.em.annotation.config.Constants;
 import uk.gov.hmcts.reform.em.annotation.rest.errors.BadRequestAlertException;
 import uk.gov.hmcts.reform.em.annotation.rest.util.HeaderUtil;
 import uk.gov.hmcts.reform.em.annotation.rest.util.PaginationUtil;
@@ -41,6 +44,12 @@ public class CommentResource {
         this.commentService = commentService;
     }
 
+    @InitBinder
+    public void initBinder(WebDataBinder binder)
+    {
+        binder.setDisallowedFields(Constants.IS_ADMIN);
+    }
+
     /**
      * POST  /comments : Create a new comment.
      *
@@ -56,7 +65,6 @@ public class CommentResource {
             @ApiResponse(code = 403, message = "Forbidden"),
     })
     @PostMapping("/comments")
-    //@Timed
     public ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CommentDTO commentDTO) throws URISyntaxException {
         log.debug("REST request to save Comment : {}", commentDTO);
         if (commentDTO.getId() == null) {
@@ -87,7 +95,6 @@ public class CommentResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @PutMapping("/comments")
-    //@Timed
     public ResponseEntity<CommentDTO> updateComment(@Valid @RequestBody CommentDTO commentDTO) throws URISyntaxException {
         log.debug("REST request to update Comment : {}", commentDTO);
         if (commentDTO.getId() == null) {
@@ -113,7 +120,6 @@ public class CommentResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/comments")
-    //@Timed
     public ResponseEntity<List<CommentDTO>> getAllComments(Pageable pageable) {
         log.debug("REST request to get a page of Comments");
         Page<CommentDTO> page = commentService.findAll(pageable);
@@ -135,7 +141,6 @@ public class CommentResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/comments/{id}")
-    //@Timed
     public ResponseEntity<CommentDTO> getComment(@PathVariable UUID id) {
         log.debug("REST request to get Comment : {}", id);
         Optional<CommentDTO> commentDTO = commentService.findOne(id);
@@ -156,10 +161,13 @@ public class CommentResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @DeleteMapping("/comments/{id}")
-    //@Timed
     public ResponseEntity<Void> deleteComment(@PathVariable UUID id) {
         log.debug("REST request to delete Comment : {}", id);
-        commentService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        try {
+            commentService.delete(id);
+            return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
