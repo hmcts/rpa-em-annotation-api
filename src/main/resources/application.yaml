@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: EM Annotation App
+  config:
+    import: "optional:configtree:/mnt/secrets/em-anno/"
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL94Dialect
     database: postgresql

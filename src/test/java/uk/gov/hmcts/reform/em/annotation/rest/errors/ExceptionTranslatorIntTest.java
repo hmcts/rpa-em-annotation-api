@@ -41,6 +41,14 @@ public class ExceptionTranslatorIntTest extends BaseTest {
     }
 
     @Test
+    public void testNoSuchElementException() throws Exception {
+        restLogoutMockMvc.perform(get("/test/no-such-element-exception"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.message").value((ErrorConstants.ENTITY_NOT_FOUND_TYPE).toString()));
+    }
+
+    @Test
     public void testMethodArgumentNotValid() throws Exception {
         restLogoutMockMvc.perform(post("/test/method-argument").content("{}").contentType(MediaType.APPLICATION_JSON))
              .andExpect(status().isBadRequest())

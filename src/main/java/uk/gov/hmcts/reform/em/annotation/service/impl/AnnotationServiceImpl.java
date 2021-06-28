@@ -81,21 +81,21 @@ public class AnnotationServiceImpl implements AnnotationService {
             tag.setCreatedBy(annotationDTO.getCreatedBy());
         }
 
-        if (annotationDTO.getRectangles() != null) {
+        if (!annotationDTO.getRectangles().isEmpty()) {
             annotation.getRectangles().forEach(r -> {
                 if (r.getAnnotation() == null ) {
                     r.setAnnotation(annotation);
                 }
             });
         }
-        if (annotationDTO.getComments() != null) {
+        if (!annotationDTO.getComments().isEmpty()) {
             annotation.getComments().forEach(r -> {
                 if (r.getAnnotation() == null ) {
                     r.setAnnotation(annotation);
                 }
             });
         }
-        if (annotationDTO.getTags() != null) {
+        if (!annotationDTO.getTags().isEmpty()) {
             annotation.getTags().forEach(t -> {
                 t.setCreatedBy(annotationDTO.getCreatedBy());
                 tagService.persistTag(t);

@@ -42,7 +42,6 @@ public class TagResource {
             @ApiResponse(code = 404, message = "Not Found"),
     })
     @GetMapping("/tags/{createdBy}")
-    //@Timed
     public ResponseEntity<List<TagDTO>> getTagsCreatedBy(@PathVariable String createdBy) {
         log.debug("REST request to get Tags for : {}", createdBy);
         List<TagDTO> tags = tagService.findTagByCreatedBy(createdBy);

@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 public class ExceptionTranslatorTestController {
@@ -22,6 +23,9 @@ public class ExceptionTranslatorTestController {
     @PostMapping("/test/method-argument")
     public void methodArgument(@Valid @RequestBody TestDTO testDTO) {
     }
+
+    @GetMapping("/test/no-such-element-exception")
+    public void noSuchElementException() { throw new NoSuchElementException("test no such element exception"); }
 
     @GetMapping("/test/parameterized-error")
     public void parameterizedError() {

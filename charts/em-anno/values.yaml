@@ -10,9 +10,12 @@ java:
   keyVaults:
     em-anno:
       secrets:
-        - microservicekey-em-annotation-app
-        - AppInsightsInstrumentationKey
-        - anno-POSTGRES-PASS
+        - name: microservicekey-em-annotation-app
+          alias: S2S_KEY
+        - name: AppInsightsInstrumentationKey
+          alias: APPINSIGHTS_INSTRUMENTATIONKEY
+        - name: anno-POSTGRES-PASS
+          alias: SPRING_DATASOURCE_PASSWORD
   environment:
     SPRING_DATASOURCE_URL: jdbc:postgresql://em-anno-postgres-db-{{ .Values.global.environment }}.postgres.database.azure.com:5432/annotation?sslmode=require
     SPRING_DATASOURCE_USERNAME: annotation@em-anno-postgres-db-{{ .Values.global.environment }}

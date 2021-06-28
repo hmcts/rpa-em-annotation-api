@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.em.annotation.Application;
 import uk.gov.hmcts.reform.em.annotation.BaseTest;
+import uk.gov.hmcts.reform.em.annotation.domain.Annotation;
 import uk.gov.hmcts.reform.em.annotation.domain.IdamDetails;
 import uk.gov.hmcts.reform.em.annotation.domain.Rectangle;
 import uk.gov.hmcts.reform.em.annotation.repository.RectangleRepository;
@@ -77,7 +78,6 @@ public class RectangleResourceIntTest extends BaseTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final RectangleResource rectangleResource = new RectangleResource(rectangleService);
         em.persist(new IdamDetails("system"));
         em.persist(new IdamDetails("anonymous"));
     }
@@ -123,10 +123,11 @@ public class RectangleResourceIntTest extends BaseTest {
 
     @Test
     @Transactional
-    public void createRectangleWithExistingId() throws Exception {
+    public void test_negative_annotation_id_format() throws Exception {
+
         int databaseSizeBeforeCreate = rectangleRepository.findAll().size();
 
-        // Create the Rectangle with an existing ID
+        // Create the Rectangle without an annotation Id
         rectangle.setId(UUID.randomUUID());
         RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
 
@@ -134,11 +135,27 @@ public class RectangleResourceIntTest extends BaseTest {
         restLogoutMockMvc.perform(post("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isBadRequest());
+    }
 
-        // Validate the Rectangle in the database
-        List<Rectangle> rectangleList = rectangleRepository.findAll();
-        assertThat(rectangleList).hasSize(databaseSizeBeforeCreate + 1);
+    @Test
+    @Transactional
+    public void test_negative_non_existant_annotation_id() throws Exception {
+
+        int databaseSizeBeforeCreate = rectangleRepository.findAll().size();
+        Annotation annotation = new Annotation();
+        annotation.setId(UUID.randomUUID());
+
+        // Create the Rectangle without an non existant annotation Id
+        rectangle.setAnnotation(annotation);
+        rectangle.setId(UUID.randomUUID());
+        RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        restLogoutMockMvc.perform(post("/api/rectangles")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -223,17 +240,18 @@ public class RectangleResourceIntTest extends BaseTest {
         int databaseSizeBeforeUpdate = rectangleRepository.findAll().size();
 
         // Create the Rectangle
+        rectangle.setId(null);
         RectangleDTO rectangleDTO = rectangleMapper.toDto(rectangle);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restLogoutMockMvc.perform(put("/api/rectangles")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(rectangleDTO)))
-            .andExpect(status().isOk());
+            .andExpect(status().isBadRequest());
 
         // Validate the Rectangle in the database
         List<Rectangle> rectangleList = rectangleRepository.findAll();
-        assertThat(rectangleList).hasSize(databaseSizeBeforeUpdate + 1);
+        assertThat(rectangleList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
@@ -244,7 +262,7 @@ public class RectangleResourceIntTest extends BaseTest {
 
         int databaseSizeBeforeDelete = rectangleRepository.findAll().size();
 
-        // Get the rectangle
+        // Delete the rectangle
         restLogoutMockMvc.perform(delete("/api/rectangles/{id}", rectangle.getId())
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
@@ -252,6 +270,21 @@ public class RectangleResourceIntTest extends BaseTest {
         // Validate the database is empty
         List<Rectangle> rectangleList = rectangleRepository.findAll();
         assertThat(rectangleList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void deleteNonExistingRectangle() throws Exception {
+        int databaseSizeBeforeDelete = rectangleRepository.findAll().size();
+
+        // Delete the rectangle
+        restLogoutMockMvc.perform(delete("/api/rectangles/{id}", rectangle.getId())
+                .accept(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+
+        // Validate the database hasn't changed
+        List<Rectangle> rectangleList = rectangleRepository.findAll();
+        assertThat(rectangleList).hasSize(databaseSizeBeforeDelete);
     }
 
     @Test

@@ -7,7 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import uk.gov.hmcts.reform.em.annotation.service.MetadataService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.MetadataDto;
 
@@ -21,6 +23,9 @@ public class MetaDataResourceTest {
 
     @Mock
     private MetadataService metadataService;
+
+    @Mock
+    private WebDataBinder webDataBinder;
 
     private UUID documentId =  UUID.randomUUID();
 
@@ -52,6 +57,42 @@ public class MetaDataResourceTest {
         ResponseEntity<MetadataDto> responseEntity = metaDataResource.getMetadata(metadataDto.getDocumentId());
 
         Mockito.verify(metadataService, Mockito.atLeast(1)).findByDocumentId(metadataDto.getDocumentId());
+    }
+
+    @Test
+    public void getMetaDataFailure() {
+
+        MetadataDto metadataDto = new MetadataDto();
+        Mockito.when(metadataService.findByDocumentId(metadataDto.getDocumentId())).thenReturn(metadataDto);
+
+        ResponseEntity<MetadataDto> responseEntity = metaDataResource.getMetadata(metadataDto.getDocumentId());
+
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        Assert.assertNull(responseEntity.getBody());
+
+        Mockito.verify(metadataService, Mockito.atLeast(1)).findByDocumentId(metadataDto.getDocumentId());
+    }
+
+    @Test
+    public void getMetaDataFailure2() {
+
+        MetadataDto metadataDto = new MetadataDto();
+        Mockito.when(metadataService.findByDocumentId(metadataDto.getDocumentId())).thenReturn(null);
+
+        ResponseEntity<MetadataDto> responseEntity = metaDataResource.getMetadata(metadataDto.getDocumentId());
+
+        Assert.assertNotNull(responseEntity);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        Assert.assertNull(responseEntity.getBody());
+
+        Mockito.verify(metadataService, Mockito.atLeast(1)).findByDocumentId(metadataDto.getDocumentId());
+    }
+
+    @Test
+    public void testInitBinder() {
+        metaDataResource.initBinder(webDataBinder);
+        Mockito.verify(webDataBinder, Mockito.atLeast(1)).setDisallowedFields(Mockito.anyString());
     }
 
     private MetadataDto createMetadataDto() {

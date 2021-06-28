@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.reform.em.annotation.config.Constants;
 import uk.gov.hmcts.reform.em.annotation.rest.util.HeaderUtil;
 import uk.gov.hmcts.reform.em.annotation.service.MetadataService;
 import uk.gov.hmcts.reform.em.annotation.service.dto.MetadataDto;
@@ -33,6 +35,12 @@ public class MetaDataResource {
     private static final String ENTITY_NAME = "metadata";
 
     private final MetadataService metadataService;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder)
+    {
+        binder.setDisallowedFields(Constants.IS_ADMIN);
+    }
 
     /**
      * POST  /metadata : Create a new metadata.

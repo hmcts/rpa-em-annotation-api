@@ -5,7 +5,8 @@ java:
   keyVaults:
     em-anno:
       secrets:
-        - microservicekey-em-annotation-app
+        - name: microservicekey-em-annotation-app
+          alias: S2S_KEY
   environment:
     SPRING_DATASOURCE_URL: jdbc:postgresql://{{ .Release.Name }}-{{ .Values.postgresql.nameOverride}}:5432/javadatabase?ssl=disable
     SPRING_DATASOURCE_USERNAME: "{{ .Values.postgresql.postgresqlUsername}}"

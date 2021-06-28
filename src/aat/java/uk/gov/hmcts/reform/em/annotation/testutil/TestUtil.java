@@ -4,7 +4,6 @@ import io.restassured.specification.RequestSpecification;
 import net.serenitybdd.rest.SerenityRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.em.annotation.service.dto.MetadataDto;
 import uk.gov.hmcts.reform.em.test.idam.IdamHelper;
 import uk.gov.hmcts.reform.em.test.s2s.S2sHelper;
 
@@ -65,15 +64,6 @@ public class TestUtil {
     public RequestSpecification validS2SAuthWithEmptyIdamAuth() {
 
         return s2sAuthRequest().header("Authorization", null);
-    }
-
-    public MetadataDto createMetadataDto() {
-
-        MetadataDto metadataDto = new MetadataDto();
-        metadataDto.setRotationAngle(90);
-        metadataDto.setDocumentId(documentId);
-
-        return metadataDto;
     }
 
     private RequestSpecification emptyS2sAuthRequest() {

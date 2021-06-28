@@ -107,16 +107,17 @@ public class RectangleScenarios {
     }
 
     @Test
-    public void shouldReturn500WhenCreateNewRectangleWithNonExistentAnnotationId() {
+    public void shouldReturn404WhenCreateNewRectangleWithNonExistentAnnotationId() {
+
         final String nonExistentAnnotationId = UUID.randomUUID().toString();
         final String rectangleId = UUID.randomUUID().toString();
         final JSONObject rectanglePayload = createRectanglePayload(nonExistentAnnotationId, rectangleId);
         request
-                .body(rectanglePayload.toString())
-                .post("/api/rectangles")
-                .then()
-                .statusCode(500)
-                .log().all();
+            .body(rectanglePayload.toString())
+            .post("/api/rectangles")
+            .then()
+            .statusCode(404)
+            .log().all();
     }
 
     @Test
@@ -125,7 +126,7 @@ public class RectangleScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String rectangleId = UUID.randomUUID().toString();
         final ValidatableResponse response = createRectangle(annotationId, rectangleId);
-        final String id = extractJSONObjectFromResponse(response).getString("id");
+        final String id = extractJsonObjectFromResponse(response).getString("id");
 
         request
                 .get("/api/rectangles/" + id)
@@ -189,7 +190,7 @@ public class RectangleScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String rectangleId = UUID.randomUUID().toString();
         final ValidatableResponse response = createRectangle(annotationId, rectangleId);
-        final JSONObject rectangle = extractJSONObjectFromResponse(response);
+        final JSONObject rectangle = extractJsonObjectFromResponse(response);
         rectangle.put("x", 3f);
         rectangle.put("y", 4f);
 
@@ -257,7 +258,7 @@ public class RectangleScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String rectangleId = UUID.randomUUID().toString();
         final ValidatableResponse createdResponse = createRectangle(annotationId, rectangleId);
-        final String id = extractJSONObjectFromResponse(createdResponse).getString("id");
+        final String id = extractJsonObjectFromResponse(createdResponse).getString("id");
 
         final ValidatableResponse deletedResponse = deleteRectangleById(id);
 
@@ -265,11 +266,11 @@ public class RectangleScenarios {
     }
 
     @Test
-    public void shouldReturn500WhenDeleteRectangleByNonExistentId() {
+    public void shouldReturn404WhenDeleteRectangleByNonExistentId() {
         final String nonExistentRectangleId = UUID.randomUUID().toString();
         final ValidatableResponse deletedResponse = deleteRectangleById(nonExistentRectangleId);
 
-        deletedResponse.statusCode(500);
+        deletedResponse.statusCode(404);
     }
 
     @Test
@@ -287,7 +288,7 @@ public class RectangleScenarios {
         final String annotationId = createAnnotation(newAnnotationSetId);
         final String rectangleId = UUID.randomUUID().toString();
         final ValidatableResponse response = createRectangle(annotationId, rectangleId);
-        final JSONObject rectangle = extractJSONObjectFromResponse(response);
+        final JSONObject rectangle = extractJsonObjectFromResponse(response);
         final String id = rectangle.getString("id");
         deleteRectangleById(id).statusCode(200);
         rectangle.put("x", 3f);
@@ -381,7 +382,7 @@ public class RectangleScenarios {
     }
 
     @NotNull
-    private JSONObject extractJSONObjectFromResponse(final ValidatableResponse response) {
+    private JSONObject extractJsonObjectFromResponse(final ValidatableResponse response) {
         return response.extract().response().as(JSONObject.class);
     }
 }
